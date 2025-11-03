@@ -13,6 +13,8 @@ import com.example.project.service.OrderService;
 import com.example.project.model.Order;
 import java.util.List;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -74,17 +76,41 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
-    @PostMapping("/order/{productId}")  // 개별 상품 주문 생성
+    @PostMapping("/order/{productId}")  // 개별 상품 주문 생성 및 카카오페이 결제 준비
     public ResponseEntity<?> placeItemOrder(@AuthenticationPrincipal CustomUserDetails principal,
                                             @PathVariable("productId") Long productId,
                                             @RequestParam("quantity") int quantity) {
-        Order order = orderService.placeIndividualOrder(principal.getUserId(), productId, quantity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        return orderService.KakaoPayReady(principal.getUserId(), productId, quantity);
+    }
+
+    @GetMapping("/payment/success")  // 카카오페이 결제 승인 및 완료
+    public ResponseEntity<?> KakaoPaySuccess(@RequestParam("orderId") Long orderId,
+                                             @RequestParam("pg_token") String pgToken) {
+        return orderService.KakaoPayApprove(orderId, pgToken);
+    }
+
+    @GetMapping("/payment/cancel")   // 카카오페이 결제 취소
+    public ResponseEntity<?> KakaoPayCancel(@RequestParam("orderId") Long orderId) {
+        return orderService.KakaoPayApproveCancel(orderId);
     }
 
     @GetMapping("/auth/orders")   // 현재 로그인한 유저의 주문 목록 조회
     public ResponseEntity<?> getCurrentUserOrders(@AuthenticationPrincipal CustomUserDetails principal) {
         List<OrderDTO> orders = orderService.getOrdersByUserId(principal.getUserId());
         return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/order/status/{orderId}") // 주문 상태 조회
+    public ResponseEntity<?> getOrderStatus(@AuthenticationPrincipal CustomUserDetails principal,
+                                            @PathVariable("orderId") Long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        if (order == null || !order.getUser().getId().equals(principal.getUserId())) {
+            return ResponseEntity.status(403).body("접근 권한이 없습니다.");
+        }
+
+        Map<String, Object> statusInfo = new HashMap<>();
+        statusInfo.put("status", order.getStatus().name());  // 예: "PAID", "PENDING" 등
+
+        return ResponseEntity.ok(statusInfo);
     }
 }

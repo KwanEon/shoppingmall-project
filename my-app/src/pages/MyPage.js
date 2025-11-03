@@ -28,7 +28,8 @@ const MyPage = () => {
       if (user !== null && userRole !== "ANONYMOUS") {
         try {
             const response = await axios.get(`http://localhost:8080/auth/orders`, { withCredentials: true });
-            setOrders(response.data);
+            const paidOrders = response.data.filter(order => order.status === "PAID");
+            setOrders(paidOrders);
         } catch (error) {
             console.error("Failed to fetch orders:", error);
         }

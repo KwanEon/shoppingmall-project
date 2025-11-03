@@ -13,6 +13,7 @@ function IndOrder() {
   const [product, setProduct] = useState(null);
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [kakaoPayUrl, setKakaoPayUrl] = useState("");
   const navigate = useNavigate();
   const hasAlerted = useRef(false);
 
@@ -60,9 +61,35 @@ function IndOrder() {
         {},
         { withCredentials: true }
       )
-      .then(() => {
-        alert("주문이 정상적으로 완료되었습니다.");
-        navigate("/mypage");
+      .then((res) => {
+        const kakaoPayResponse = res.data.kakaoPayResponse;
+        const popup = window.open(kakaoPayResponse.next_redirect_pc_url, "kakaoPay", "width=500,height=600,scrollbars=yes");
+        if (!popup) {
+          alert("팝업이 차단되었습니다. 팝업 차단을 해제해주세요.");
+          return;
+        }
+
+        const orderId = res.data.orderId;
+
+        const pollTimer = window.setInterval(() => {
+          if (popup.closed) {
+            window.clearInterval(pollTimer);
+            // 결제 상태 확인
+            axios.get(`http://localhost:8080/order/status/${orderId}`, { withCredentials: true })
+              .then((statusRes) => {
+                if (statusRes.data.status === "PAID") {
+                  alert("주문이 정상적으로 완료되었습니다.");
+                  navigate("/mypage");
+                } else {
+                  axios.get(`http://localhost:8080/payment/cancel?orderId=${orderId}`, { withCredentials: true });
+                  alert("결제가 취소되었거나 실패했습니다.");
+                }
+              })
+              .catch(() => {
+                alert("상태 확인 중 오류 발생.");
+              });
+          }
+        }, 500);
       })
       .catch((err) => {
         console.error("주문 처리 중 오류", err);

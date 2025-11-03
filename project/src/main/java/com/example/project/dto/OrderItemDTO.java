@@ -19,7 +19,7 @@ public class OrderItemDTO {
     private Long productId;
     private String productName;
     private int quantity;
-    private double price;
+    private int price;
     private Long reviewId;
 
     public static OrderItemDTO from(OrderItem orderItem, Long reviewId) {

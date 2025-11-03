@@ -41,6 +41,7 @@ function ReviewForm() {
           let hasWrittenReview = false;
 
           for (const order of orders) {
+            if (order.status !== "PAID") continue;
             for (const item of order.orderItems) {
               if (item.productId === Number(productId)) {
                 hasPurchased = true;

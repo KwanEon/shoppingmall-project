@@ -34,7 +34,7 @@ public class ProductDTO {
 
     @NotNull(message = "상품 가격은 필수 입력 항목입니다.")
     @Min(value = 0, message = "상품 가격은 0 이상이어야 합니다.")
-    private double price;
+    private int price;
 
     @NotNull(message = "재고 수량은 필수 입력 항목입니다.")
     @Min(value = 0, message = "재고 수량은 0 이상이어야 합니다.")

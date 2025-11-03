@@ -18,7 +18,7 @@ public class OrderDTO {
     private Long userId;
     private String orderDate;
     private String status;
-    private double totalPrice;
+    private int totalPrice;
 
     @Builder.Default
     private final List<OrderItemDTO> orderItems = new ArrayList<>();

@@ -35,15 +35,19 @@ public class Order {
     @Column(nullable = false)
     private OrderStatus status;
 
+    @Column(unique = true)
+    private String tid;
+
     public enum OrderStatus {
         PENDING,
+        PAID,
         SHIPPED,
         DELIVERED,
         CANCELLED
     }
 
     @Column(nullable = false)
-    private double totalPrice;
+    private int totalPrice;
 
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

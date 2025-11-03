@@ -16,6 +16,6 @@ public class ProductListDTO {
     private Long id;
     private String name;
     private Category category;
-    private double price;
+    private int price;
     private int stock;
 }
