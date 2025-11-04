@@ -31,7 +31,6 @@ import com.example.project.repository.ProductRepository;
 import com.example.project.repository.ReviewRepository;
 import com.example.project.repository.UserRepository;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,7 +56,7 @@ public class OrderService {
         return orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다"));
     }
 
-    public Order placeOrder(Long userId) {      // 주문 생성(장바구니)
+    public Order createPendingOrderFromCart(Long userId) {      // 결제 전 주문 엔티티 생성(장바구니 기반)
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다"));
         List<CartItem> cartItems = cartItemService.getCartItemsByUserId(userId);
 
@@ -85,17 +84,13 @@ public class OrderService {
 
             totalPrice += itemPrice;
             
-            orderItemService.createOrderItem(order, product, quantity);
-            product.setStock(product.getStock() - quantity); // 재고 차감
-            productRepository.save(product); // 재고 업데이트
+            OrderItem item = orderItemService.createOrderItem(order, product, quantity);
+            order.addOrderItem(item);   // 양방향 연관관계 설정
         }
 
         // 총 금액 설정
         order.setTotalPrice(totalPrice);
         orderRepository.save(order);
-
-        // 장바구니 비우기
-        cartItemService.deleteAllCartItemsByUserId(userId);
 
         return order;
     }
@@ -130,7 +125,8 @@ public class OrderService {
         user.addOrder(order); // 양방향 연관관계 설정
 
         // 주문 항목 생성
-        orderItemService.createOrderItem(order, product, quantity);
+        OrderItem item = orderItemService.createOrderItem(order, product, quantity);
+        order.addOrderItem(item);   // 양방향 연관관계 설정
 
         orderRepository.save(order);
 
@@ -177,8 +173,7 @@ public class OrderService {
         }
     }
 
-    public ResponseEntity<?> KakaoPayReady(Long userId, Long productId, int quantity) {   // 카카오페이 결제 준비
-        Order order = createPendingOrder(userId, productId, quantity);
+    public KakaoPayReadyResponseDTO KakaoPayReady(Long userId, Order order, int quantity) {   // 카카오페이 결제 준비
         KakaoPayReadyRequestDTO kakaoPayRequest = KakaoPayReadyRequestDTO.builder()
                                 .cid("TC0ONETIME")
                                 .partner_order_id(order.getId().toString())
@@ -188,6 +183,105 @@ public class OrderService {
                                 .total_amount(order.getTotalPrice())
                                 .tax_free_amount(0)
                                 .approval_url("http://localhost:3000/payment/success?orderId=" + order.getId())
+                                .cancel_url("http://localhost:8080/payment/cancel?orderId=" + order.getId())
+                                .fail_url("http://localhost:3000/payment/fail")
+                                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        RestTemplate restTemplate = new RestTemplate();
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "SECRET_KEY " + kakaoSecretKey);
+
+        HttpEntity<KakaoPayReadyRequestDTO> requestEntity = new HttpEntity<>(kakaoPayRequest, headers);
+
+        try {
+            // 카카오페이 결제 준비 API 호출
+            ResponseEntity<KakaoPayReadyResponseDTO> response = restTemplate.postForEntity(
+                    "https://open-api.kakaopay.com/online/v1/payment/ready",
+                    requestEntity,
+                    KakaoPayReadyResponseDTO.class
+            );
+            KakaoPayReadyResponseDTO responseDTO = response.getBody();
+            if (response.getStatusCode().is2xxSuccessful() && responseDTO != null) {
+                order.setTid(responseDTO.getTid());
+                orderRepository.save(order);
+
+                return responseDTO;
+            } else {
+                throw new IllegalStateException("결제 준비에 실패했습니다.");
+            }
+        } catch (HttpClientErrorException e) {      // 카카오페이 API 호출 실패 시
+            throw new IllegalStateException("결제 준비 중 오류가 발생했습니다: " + e.getResponseBodyAsString());
+        } catch (Exception e) {                     // 기타 예외 처리
+            throw new IllegalStateException("결제 준비 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    public KakaoPayApproveResponseDTO KakaoPayApprove(Long orderId, String pgToken) {   // 카카오페이 결제 승인
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus() == OrderStatus.PAID) {
+            throw new IllegalStateException("이미 결제 완료된 주문입니다.");
+        }
+
+        KakaoPayApproveRequestDTO kakaoPayApproveRequest = KakaoPayApproveRequestDTO.builder()
+                                        .cid("TC0ONETIME")
+                                        .tid(order.getTid())
+                                        .partner_order_id(order.getId().toString())
+                                        .partner_user_id(order.getUser().getId().toString())
+                                        .pg_token(pgToken)
+                                        .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        RestTemplate restTemplate = new RestTemplate();
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "SECRET_KEY " + kakaoSecretKey);
+
+        HttpEntity<KakaoPayApproveRequestDTO> requestEntity = new HttpEntity<>(kakaoPayApproveRequest, headers);
+
+        try {
+            // 카카오페이 결제 승인 API 호출
+            ResponseEntity<KakaoPayApproveResponseDTO> response = restTemplate.postForEntity(
+                    "https://open-api.kakaopay.com/online/v1/payment/approve",
+                    requestEntity,
+                    KakaoPayApproveResponseDTO.class
+            );
+            KakaoPayApproveResponseDTO result = response.getBody();
+            if (response.getStatusCode().is2xxSuccessful() && result != null) {
+                order.setStatus(OrderStatus.PAID);  // 결제 완료로 상태 변경
+                orderRepository.save(order);
+
+                // 재고 차감
+                Product product = productRepository.findByIdWithLock(order.getOrderItems().get(0).getProduct().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다"));
+                product.setStock(product.getStock() - order.getOrderItems().get(0).getQuantity());
+                productRepository.save(product);
+            }
+            return result;
+        } catch (HttpClientErrorException e) {      // 카카오페이 API 호출 실패 시
+            throw new IllegalStateException("결제 승인 중 오류가 발생했습니다: " + e.getResponseBodyAsString());
+        } catch (Exception e) {                     // 기타 예외 처리
+            throw new IllegalStateException("결제 승인 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    public KakaoPayReadyResponseDTO KakaoPayReadyFromCart(Long userId, Order order) {   // 카카오페이 결제 준비(장바구니 기반)
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(order.getId());
+        String itemName = orderItems.get(0).getProduct().getName();
+        if (orderItems.size() > 1) {
+            itemName += " 외 " + (orderItems.size() - 1) + "건";
+        }
+        KakaoPayReadyRequestDTO kakaoPayRequest = KakaoPayReadyRequestDTO.builder()
+                                .cid("TC0ONETIME")
+                                .partner_order_id(order.getId().toString())
+                                .partner_user_id(userId.toString())
+                                .item_name(itemName)
+                                .quantity(order.getOrderItems().stream().mapToInt(item -> item.getQuantity()).sum())
+                                .total_amount(order.getTotalPrice())
+                                .tax_free_amount(0)
+                                .approval_url("http://localhost:3000/payment/success/cart?orderId=" + order.getId())
                                 .cancel_url("http://localhost:8080/payment/cancel?orderId=" + order.getId())
                                 .fail_url("http://localhost:3000/payment/fail")
                                 .build();
@@ -211,25 +305,22 @@ public class OrderService {
                 order.setTid(responseDTO.getTid());
                 orderRepository.save(order);
 
-                Map<String, Object> result = new HashMap<>();
-                result.put("kakaoPayResponse", responseDTO);
-                result.put("orderId", order.getId());           // 결제 상태 확인을 위한 주문 ID 추가
-                return ResponseEntity.status(response.getStatusCode()).body(result);
+                return responseDTO;
             } else {
-                return ResponseEntity.status(response.getStatusCode()).body("결제 준비에 실패했습니다.");
+                throw new IllegalStateException("결제 준비에 실패했습니다.");
             }
         } catch (HttpClientErrorException e) {      // 카카오페이 API 호출 실패 시
-            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+            throw new IllegalStateException("결제 준비 중 오류가 발생했습니다: " + e.getResponseBodyAsString());
         } catch (Exception e) {                     // 기타 예외 처리
-            return ResponseEntity.status(500).body("결제 준비 중 오류가 발생했습니다: " + e.getMessage());
+            throw new IllegalStateException("결제 준비 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
-    public ResponseEntity<?> KakaoPayApprove(Long orderId, String pgToken) {   // 카카오페이 결제 승인
+    public KakaoPayApproveResponseDTO KakaoPayApproveFromCart(Long orderId, String pgToken) {   // 카카오페이 결제 승인(장바구니 기반)
         Order order = getOrderById(orderId);
 
         if (order.getStatus() == OrderStatus.PAID) {
-            return ResponseEntity.badRequest().body("이미 결제 완료된 주문입니다.");
+            throw new IllegalStateException("이미 결제 완료된 주문입니다.");
         }
 
         KakaoPayApproveRequestDTO kakaoPayApproveRequest = KakaoPayApproveRequestDTO.builder()
@@ -260,22 +351,26 @@ public class OrderService {
                 orderRepository.save(order);
 
                 // 재고 차감
-                Product product = productRepository.findByIdWithLock(order.getOrderItems().get(0).getProduct().getId())
-                        .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다"));
-                product.setStock(product.getStock() - order.getOrderItems().get(0).getQuantity());
-                productRepository.save(product);
+                for (OrderItem orderItem : order.getOrderItems()) {
+                    Product product = productRepository.findByIdWithLock(orderItem.getProduct().getId())
+                            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다"));
+                    product.setStock(product.getStock() - orderItem.getQuantity());
+                    productRepository.save(product);
+                }
+
+                // 장바구니 비우기
+                cartItemService.deleteAllCartItemsByUserId(order.getUser().getId());
             }
-            return ResponseEntity.status(response.getStatusCode()).body(result);
-        } catch (HttpClientErrorException e) {      // 카카오페이 API 호출 실패 시
-            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+            return result;
+        } catch (HttpClientErrorException e) {      // 카카오페이 API 호출
+            throw new IllegalStateException("결제 승인 중 오류가 발생했습니다: " + e.getResponseBodyAsString());
         } catch (Exception e) {                     // 기타 예외 처리
-            return ResponseEntity.status(500).body("결제 승인 중 오류가 발생했습니다: " + e.getMessage());
+            throw new IllegalStateException("결제 승인 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
-    public ResponseEntity<?> KakaoPayApproveCancel(Long orderId) {   // 카카오페이 결제 취소
+    public void KakaoPayApproveCancel(Long orderId) {   // 카카오페이 결제 취소
         Order order = getOrderById(orderId);
         orderRepository.delete(order);
-        return ResponseEntity.ok("주문이 취소되었습니다.");
     }
 }

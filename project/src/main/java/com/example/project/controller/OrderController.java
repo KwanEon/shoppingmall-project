@@ -6,6 +6,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import lombok.RequiredArgsConstructor;
 import com.example.project.dto.CartItemDTO;
 import com.example.project.dto.OrderDTO;
+import com.example.project.dto.KakaoPayReadyResponseDTO;
+import com.example.project.dto.KakaoPayApproveResponseDTO;
 import org.springframework.web.bind.annotation.*;
 import com.example.project.security.CustomUserDetails;
 import com.example.project.service.CartItemService;
@@ -70,28 +72,66 @@ public class OrderController {
         return ResponseEntity.ok("상품이 장바구니에서 삭제되었습니다.");
     }
 
-    @PostMapping("/order/cartitem") // 장바구니 아이템으로 주문 생성
+    @PostMapping("/order/cartitem") // 장바구니 아이템으로 주문 생성 및 카카오페이 결제 준비
     public ResponseEntity<?> placeCartOrder(@AuthenticationPrincipal CustomUserDetails principal) {
-        Order order = orderService.placeOrder(principal.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        try {
+            Order order = orderService.createPendingOrderFromCart(principal.getUserId());
+            KakaoPayReadyResponseDTO responseDTO = orderService.KakaoPayReadyFromCart(principal.getUserId(), order);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("kakaoPayResponse", responseDTO);
+            result.put("orderId", order.getId());       // 결제 상태 확인을 위한 주문 ID 추가
+
+            return ResponseEntity.ok(result);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/payment/success/cart")  // 카카오페이 결제 승인 및 완료(장바구니 기반)
+    public ResponseEntity<?> KakaoPaySuccessFromCart(@RequestParam("orderId") Long orderId,
+                                                     @RequestParam("pg_token") String pgToken) {                                        
+        try {
+            KakaoPayApproveResponseDTO responseDTO = orderService.KakaoPayApproveFromCart(orderId, pgToken);
+            return ResponseEntity.ok(responseDTO);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
     }
 
     @PostMapping("/order/{productId}")  // 개별 상품 주문 생성 및 카카오페이 결제 준비
     public ResponseEntity<?> placeItemOrder(@AuthenticationPrincipal CustomUserDetails principal,
                                             @PathVariable("productId") Long productId,
                                             @RequestParam("quantity") int quantity) {
-        return orderService.KakaoPayReady(principal.getUserId(), productId, quantity);
+        try {
+            Order order = orderService.createPendingOrder(principal.getUserId(), productId, quantity);
+            KakaoPayReadyResponseDTO responseDTO = orderService.KakaoPayReady(principal.getUserId(), order, quantity);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("kakaoPayResponse", responseDTO);
+            result.put("orderId", order.getId());       // 결제 상태 확인을 위한 주문 ID 추가
+
+            return ResponseEntity.ok(result);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/payment/success")  // 카카오페이 결제 승인 및 완료
+    @PostMapping("/payment/success")  // 카카오페이 결제 승인 및 완료
     public ResponseEntity<?> KakaoPaySuccess(@RequestParam("orderId") Long orderId,
                                              @RequestParam("pg_token") String pgToken) {
-        return orderService.KakaoPayApprove(orderId, pgToken);
+        try {
+            KakaoPayApproveResponseDTO responseDTO = orderService.KakaoPayApprove(orderId, pgToken);
+            return ResponseEntity.ok(responseDTO);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 
-    @GetMapping("/payment/cancel")   // 카카오페이 결제 취소
+    @PostMapping("/payment/cancel")   // 카카오페이 결제 취소
     public ResponseEntity<?> KakaoPayCancel(@RequestParam("orderId") Long orderId) {
-        return orderService.KakaoPayApproveCancel(orderId);
+        orderService.KakaoPayApproveCancel(orderId);
+        return ResponseEntity.ok("주문이 취소되었습니다.");
     }
 
     @GetMapping("/auth/orders")   // 현재 로그인한 유저의 주문 목록 조회

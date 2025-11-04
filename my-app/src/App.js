@@ -15,6 +15,7 @@ import IndOrder from "./pages/IndOrder";
 import Review from "./pages/Review";
 import EditReview from "./pages/EditReview";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentSuccessCart from "./pages/PaymentSuccessCart";
 import Layout from "./components/Layout";
 import { AuthContext } from "./contexts/AuthContext"
 
@@ -44,6 +45,7 @@ function App() {
           <Route path="/reviews/:reviewId/edit" element={<EditReview />} />
           <Route path="/order/:productId" element={<IndOrder />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/success/cart" element={<PaymentSuccessCart />} />
         </Routes>
       </Layout>
     </Router>

@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
-function PaymentSuccess() {
+function PaymentSuccessCart() {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("orderId");
   const pgToken = searchParams.get("pg_token");
@@ -22,7 +22,7 @@ function PaymentSuccess() {
     hasAlerted.current = true;
 
     axios
-      .post(`http://localhost:8080/payment/success?orderId=${orderId}&pg_token=${pgToken}`, 
+      .post(`http://localhost:8080/payment/success/cart?orderId=${orderId}&pg_token=${pgToken}`,
         {},
         { withCredentials: true }
       )
@@ -40,4 +40,4 @@ function PaymentSuccess() {
   return <div>결제 처리 중...</div>;
 }
 
-export default PaymentSuccess;
+export default PaymentSuccessCart;

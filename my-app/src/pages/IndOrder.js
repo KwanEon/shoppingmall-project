@@ -13,7 +13,6 @@ function IndOrder() {
   const [product, setProduct] = useState(null);
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [kakaoPayUrl, setKakaoPayUrl] = useState("");
   const navigate = useNavigate();
   const hasAlerted = useRef(false);
 
@@ -81,7 +80,7 @@ function IndOrder() {
                   alert("주문이 정상적으로 완료되었습니다.");
                   navigate("/mypage");
                 } else {
-                  axios.get(`http://localhost:8080/payment/cancel?orderId=${orderId}`, { withCredentials: true });
+                  axios.post(`http://localhost:8080/payment/cancel?orderId=${orderId}`, {}, { withCredentials: true });
                   alert("결제가 취소되었거나 실패했습니다.");
                 }
               })
