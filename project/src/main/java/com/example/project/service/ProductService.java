@@ -23,7 +23,6 @@ import com.example.project.model.Review;
 import com.example.project.repository.ProductRepository;
 import com.example.project.repository.ReviewRepository;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -37,8 +36,8 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> getAllProducts(Pageable pageable) {    // 모든 상품 조회(페이징)
-        return productRepository.findAll(pageable);
+    public Page<ProductListDTO> findAllProducts(Category category, String keyword, Pageable pageable) {    // 모든 상품 조회(페이징)
+        return productRepository.findAllProducts(category, keyword, pageable);
     }
     
     @Transactional(readOnly = true)
@@ -98,32 +97,6 @@ public class ProductService {
     public void deleteProduct(Long id) {    // 상품 삭제
         Product product = getProductById(id);
         productRepository.delete(product);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<Product> searchProductsByName(String keyword, Pageable pageable) {  // 상품명으로 검색
-        return productRepository.findByNameContainingIgnoreCase(keyword, pageable);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<Product> searchProductsByCategory(Category category, Pageable pageable) {   // 카테고리로 검색
-        return productRepository.findByCategory(category, pageable);
-    }
-    
-    @Transactional(readOnly = true)
-    public Page<Product> searchProductsByNameAndCategory(Category category, String keyword, Pageable pageable) {    // 카테고리 + 상품명으로 검색
-        return productRepository.findByCategoryAndNameContainingIgnoreCase(category, keyword, pageable);
-    }
-
-    public ProductListDTO convertToListDTO(Product product) {   // 상품 리스트용 DTO 변환
-        ProductListDTO dto = ProductListDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .category(product.getCategory())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .build();
-        return dto;
     }
 
     @Transactional(readOnly = true)

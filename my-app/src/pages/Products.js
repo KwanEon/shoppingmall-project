@@ -2,6 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar as fullStar, faStarHalfAlt as halfStar } from "@fortawesome/free-solid-svg-icons";
+import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 
 const categoryOptions = [
   { value: "", label: "카테고리 선택" },
@@ -18,39 +21,47 @@ function ProductList() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(0); // 현재 페이지 번호
-  const [totalPages, setTotalPages] = useState(0); // 전체 페이지 수
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchProducts = async (currentPage = 0) => {   // 상품 목록을 가져오는 함수
-    setLoading(true);   // 로딩 상태 시작
-    setError(""); // 에러 메시지 초기화
+  const renderStars = (rating) => {
+    if (rating == null) rating = 0;
+    return [...Array(5)].map((_, i) => {
+      const starValue = i + 1;
+      return (
+        <FontAwesomeIcon
+          key={i}
+          icon={rating >= starValue ? fullStar : rating >= starValue - 0.5 ? halfStar : emptyStar}
+          style={{ color: "#FFD700" }}
+        />
+      );
+    });
+  };
+
+  const fetchProducts = async (currentPage = 0) => {
+    setLoading(true);
+    setError("");
     try {
-      const params = { page : currentPage };  // 페이지 번호를 쿼리 파라미터로 전달
+      const params = { page: currentPage };
       if (category) params.category = category;
       if (keyword) params.keyword = keyword;
 
-      const res = await axios.get(`http://localhost:8080/products`, {
-        params, // 카테고리와 키워드를 쿼리 파라미터로 전달
-        withCredentials: true, // 쿠키(세션) 포함 → 로그인 정보 전송
+      const res = await axios.get("http://localhost:8080/products", {
+        params,
+        withCredentials: true,
       });
 
       const data = res.data;
-
-      if (Array.isArray(data.content)) {  // 응답이 배열인 경우
-        setProducts(data.content);
-        setPage(data.number);
-        setTotalPages(data.totalPages);
-      } else {  // 응답이 배열이 아닌 경우
-        setProducts([]);
-        setError("상품 데이터가 배열 형식이 아닙니다.");
-      }
+      setProducts(data.content || []);
+      setPage(data.number);
+      setTotalPages(data.totalPages);
     } catch (e) {
       setError("상품 목록을 불러오는 중 오류가 발생했습니다.");
       setProducts([]);
     }
-    setLoading(false);  // 로딩 종료
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -59,47 +70,73 @@ function ProductList() {
 
   const handleAddProduct = () => navigate("/add-product");
   const handleEditProduct = (productId) => navigate(`/edit-product/${productId}`);
-  const handlePageChange = (newPage) => fetchProducts(newPage);
-
   const handleDeleteProduct = async (productId) => {
-    const confirmDelete = window.confirm("정말로 이 상품을 삭제하시겠습니까?");
-    if (!confirmDelete) return; // 사용자가 삭제를 취소한 경우
+    if (!window.confirm("정말로 이 상품을 삭제하시겠습니까?")) return;
     try {
       await axios.delete(`http://localhost:8080/products/${productId}`, { withCredentials: true });
-      fetchProducts();  // 삭제 후 상품 목록을 다시 불러옴
+      fetchProducts();
       alert("상품이 삭제되었습니다.");
-    } catch (e) {
+    } catch {
       alert("상품 삭제 중 오류가 발생했습니다.");
     }
   };
 
-  const handleSearch = (e) => {   // 검색어와 카테고리로 상품 목록을 필터링
-    e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
-    fetchProducts();  // 검색어와 카테고리를 반영하여 상품 목록을 다시 불러옴
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchProducts();
   };
 
+  const handlePageChange = (newPage) => fetchProducts(newPage);
+
   return (
-    <div>
+    <section style={{ padding: "2rem" }}>
       <h2>상품 목록</h2>
 
-      <form onSubmit={handleSearch}>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          {categoryOptions.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+    <form
+      onSubmit={handleSearch}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: "0.5rem",
+        marginBottom: "1rem",
+      }}
+    >
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        style={{ padding: "0.4rem 0.6rem", borderRadius: "6px", border: "1px solid #ccc" }}
+      >
+        {categoryOptions.map(({ value, label }) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
 
-        <input
-          type="text"
-          placeholder="검색어 입력"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
+      <input
+        type="text"
+        placeholder="검색어 입력"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        style={{ padding: "0.4rem 0.6rem", borderRadius: "6px", border: "1px solid #ccc", minWidth: "200px" }}
+      />
 
-        <button type="submit">검색</button>
-      </form>
+      <button
+        type="submit"
+        style={{
+          padding: "0.4rem 0.8rem",
+          borderRadius: "6px",
+          border: "none",
+          backgroundColor: "#111",
+          color: "#fff",
+          cursor: "pointer",
+        }}
+      >
+        검색
+      </button>
+    </form>
+
 
       {loading && <p>로딩 중...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -110,29 +147,62 @@ function ProductList() {
         </div>
       )}
 
-      <ul>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
         {products.length === 0 ? (
-          <li>상품이 없습니다.</li>
+          <p>상품이 없습니다.</p>
         ) : (
           products.map((product) => (
-            <li key={product.id}>
-              <strong
-                style={{ cursor: "pointer", color: "blue", textDecoration: "underline" }}
+            <div
+              key={product.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "1rem",
+                width: "200px",
+                textAlign: "center",
+              }}
+            >
+              <img
                 onClick={() => navigate(`/products/${product.id}`)}
+                src={
+                  product.imageUrl?.startsWith("http")
+                    ? product.imageUrl
+                    : `http://localhost:8080${product.imageUrl}`
+                }
+                alt={product.name}
+                style={{
+                  width: "100%",
+                  height: "150px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  cursor: "pointer" }}
+              />
+              <h4
+                onClick={() => navigate(`/products/${product.id}`)}
+                style={{ cursor: "pointer", color: "blue"}}
               >
                 {product.name}
-              </strong>{" "}
-              - {product.category} - ₩{product.price} - 재고: {product.stock}
+              </h4>
+              <p>{product.category}</p> <p>{product.price.toLocaleString()}원</p>
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "0.3rem" }}>
+                {renderStars(product.averageRating)}
+                <span>{product.averageRating?.toFixed(1) || 0}</span>
+              </div>
+
               {userRole === "ROLE_ADMIN" && (
-                <div>
+                <div style={{ marginTop: "0.5rem" }}>
                   <button onClick={() => handleEditProduct(product.id)}>수정</button>
                   <button onClick={() => handleDeleteProduct(product.id)}>삭제</button>
                 </div>
               )}
-            </li>
+            </div>
           ))
         )}
-      </ul>
+      </div>
 
       {totalPages > 1 && (
         <div style={{ marginTop: "1rem" }}>
@@ -148,7 +218,7 @@ function ProductList() {
                 border: "1px solid #ccc",
                 borderRadius: "4px",
                 backgroundColor: idx === page ? "#ddd" : "white",
-                cursor: "pointer"
+                cursor: "pointer",
               }}
             >
               {idx + 1}
@@ -156,7 +226,7 @@ function ProductList() {
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

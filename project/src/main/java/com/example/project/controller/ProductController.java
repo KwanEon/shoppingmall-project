@@ -14,7 +14,6 @@ import com.example.project.dto.ProductDTO;
 import com.example.project.dto.ProductListDTO;
 import com.example.project.dto.ReviewDTO;
 import com.example.project.dto.ProductDetailDTO;
-import com.example.project.model.Product;
 import com.example.project.model.Product.Category;
 import com.example.project.repository.ReviewRepository;
 import com.example.project.security.CustomUserDetails;
@@ -36,18 +35,7 @@ public class ProductController {
                                                         @RequestParam(value = "keyword", required = false) String keyword,
                                                         @RequestParam(value = "page", defaultValue = "0") int page) {
         PageRequest pageRequest = PageRequest.of(page, 10);
-        Page<Product> products;
-
-        if (category != null && (keyword == null || keyword.isEmpty())) {
-            products = productService.searchProductsByCategory(category, pageRequest);
-        } else if (category == null && keyword != null && !keyword.isEmpty()) {
-            products = productService.searchProductsByName(keyword, pageRequest);
-        } else if (category != null && keyword != null && !keyword.isEmpty()) {
-            products = productService.searchProductsByNameAndCategory(category, keyword, pageRequest);
-        } else {
-            products = productService.getAllProducts(pageRequest);
-        }
-        Page<ProductListDTO> productListDTOs = products.map(productService::convertToListDTO);
+        Page<ProductListDTO> productListDTOs = productService.findAllProducts(category, keyword, pageRequest);
         return ResponseEntity.ok(productListDTOs);
     }
 

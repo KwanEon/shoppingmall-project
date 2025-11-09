@@ -10,7 +10,9 @@ import lombok.*;
 public class PopularProductDTO {
     private Long id;
     private String name;
-    private String thumbnailUrl;
+    private String imageUrl;
+    private String category;
     private int price;
     private Long sales30d;
+    private Double averageRating;
 }
