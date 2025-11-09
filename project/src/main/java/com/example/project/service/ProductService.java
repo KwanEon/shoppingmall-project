@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import com.example.project.dto.PopularProductDTO;
 import com.example.project.dto.ProductDTO;
 import com.example.project.dto.ProductListDTO;
 import com.example.project.dto.ProductDetailDTO;
@@ -123,5 +124,11 @@ public class ProductService {
                 .stock(product.getStock())
                 .build();
         return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PopularProductDTO> getTop3PopularProducts() {  // 가장 많이 팔린 top3 상품 조회
+        List<PopularProductDTO> popularProducts = productRepository.findTop3ByOrderTimes();
+        return popularProducts;
     }
 }

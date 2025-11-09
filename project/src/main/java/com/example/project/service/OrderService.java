@@ -362,7 +362,7 @@ public class OrderService {
                 cartItemService.deleteAllCartItemsByUserId(order.getUser().getId());
             }
             return result;
-        } catch (HttpClientErrorException e) {      // 카카오페이 API 호출
+        } catch (HttpClientErrorException e) {      // 카카오페이 API 호출 실패 시
             throw new IllegalStateException("결제 승인 중 오류가 발생했습니다: " + e.getResponseBodyAsString());
         } catch (Exception e) {                     // 기타 예외 처리
             throw new IllegalStateException("결제 승인 중 오류가 발생했습니다: " + e.getMessage());

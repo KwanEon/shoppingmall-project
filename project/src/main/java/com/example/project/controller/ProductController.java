@@ -8,6 +8,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import com.example.project.dto.PopularProductDTO;
 import com.example.project.dto.ProductDTO;
 import com.example.project.dto.ProductListDTO;
 import com.example.project.dto.ReviewDTO;
@@ -19,6 +21,7 @@ import com.example.project.security.CustomUserDetails;
 import com.example.project.service.ProductService;
 import com.example.project.service.ReviewService;
 import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -102,5 +105,11 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.ok("상품 삭제 완료.");
+    }
+
+    @GetMapping("/popular")  // 가장 많이 팔린 top3 상품 조회
+    public ResponseEntity<?> getPopularProducts() {
+        List<PopularProductDTO> popularProducts = productService.getTop3PopularProducts();
+        return ResponseEntity.ok(popularProducts);
     }
 }
