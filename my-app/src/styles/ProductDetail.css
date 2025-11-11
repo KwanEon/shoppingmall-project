@@ -1,0 +1,167 @@
+/* 전체 컨테이너 */
+.product-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+/* 이미지 컨테이너 */
+.product-image-container {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+/* 상품 이미지 */
+.product-image {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  object-fit: cover;
+}
+
+/* 상품 제목 */
+.product-title {
+  font-size: 2rem;
+  color: #000;
+  margin-bottom: 1rem;
+}
+
+/* 상품 가격 */
+.product-price {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+/* 상품 설명 */
+.product-description {
+  color: #555;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* 수량 선택 */
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.quantity-control button {
+  padding: 0.5rem;
+  background-color: #ff7e5f;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.quantity-control button:hover {
+  background-color: #feb47b;
+}
+
+.quantity-control input {
+  width: 50px;
+  text-align: center;
+  padding: 0.3rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* 액션 버튼 */
+.action-buttons {
+  margin-top: 1rem;
+}
+
+.action-buttons button {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: 0.2s;
+}
+
+.add-to-cart {
+  background-color: #ff7e5f;
+  color: #fff;
+}
+
+.add-to-cart:hover {
+  background-color: #feb47b;
+}
+
+.order-now {
+  background-color: #00b53f;
+  color: #fff;
+}
+
+.order-now:hover {
+  background-color: #333;
+}
+
+/* 리뷰 섹션 */
+.review-section {
+  margin-top: 2rem;
+}
+
+.review-section h3 {
+  color: #ff7e5f;
+  margin-bottom: 1rem;
+}
+
+.review-list {
+  list-style: none;
+  padding: 0;
+}
+
+.review-item {
+  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0;
+}
+
+.review-item strong {
+  color: #333;
+}
+
+.review-date {
+  color: #777;
+  font-size: 0.85rem;
+}
+
+/* 페이지네이션 */
+.pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.pagination button {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #ff7e5f;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.pagination button:hover {
+  background-color: #ffe0d4;
+}
+
+.pagination button.active {
+  background-color: #feb47b;
+  color: #fff;
+}

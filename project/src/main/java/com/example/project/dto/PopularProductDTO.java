@@ -15,4 +15,5 @@ public class PopularProductDTO {
     private int price;
     private Long sales30d;
     private Double averageRating;
+    private Long reviewCount;
 }

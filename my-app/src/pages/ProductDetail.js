@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar as fullStar, faStarHalfAlt as halfStar } from "@fortawesome/free-solid-svg-icons";
+import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
+import "../styles/ProductDetail.css";
 
 function ProductDetail() {
   const { productId } = useParams();
@@ -8,12 +12,11 @@ function ProductDetail() {
 
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [page, setPage] = useState(0);  // 현재 리뷰 페이지 번호
-  const [size, setSize] = useState(5);  // 한 페이지당 리뷰 개수
+  const [page, setPage] = useState(0); // 리뷰 페이지
+  const [size] = useState(5); // 페이지당 리뷰 수
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 상품 상세 + 리뷰 동시 조회
   useEffect(() => {
     fetchProduct(page, size);
   }, [productId, page, size]);
@@ -26,9 +29,7 @@ function ProductDetail() {
         params: { page: pageToFetch, size: pageSize },
         withCredentials: true,
       });
-
-      const data = res.data;
-      setProduct(data);
+      setProduct(res.data);
     } catch (e) {
       console.error(e);
       setError("상품 정보를 불러오는 중 오류가 발생했습니다.");
@@ -36,32 +37,39 @@ function ProductDetail() {
     setLoading(false);
   };
 
+  const renderStars = (rating) => {
+    if (rating == null) rating = 0;
+    return [...Array(5)].map((_, i) => {
+      const starValue = i + 1;
+      return (
+        <FontAwesomeIcon
+          key={i}
+          icon={rating >= starValue ? fullStar : rating >= starValue - 0.5 ? halfStar : emptyStar}
+          style={{ color: "#FFD700" }}
+        />
+      );
+    });
+  };
+
   const handleQuantityChange = (operation) => {
-    setQuantity((prevQuantity) => {
-      const newQuantity =
-        operation === "increase" ? prevQuantity + 1 : prevQuantity - 1;
-      return newQuantity > 0 ? newQuantity : 1;
+    setQuantity((prev) => {
+      const newQty = operation === "increase" ? prev + 1 : prev - 1;
+      return newQty > 0 ? newQty : 1;
     });
   };
 
   const handleAddToCart = () => {
     axios
-      .post(
-        `http://localhost:8080/cartitem/${productId}?quantity=${quantity}`,
-        {},
-        { withCredentials: true }
-      )
-      .then(() => {
-        alert("장바구니에 추가되었습니다.");
-      })
+      .post(`http://localhost:8080/cartitem/${productId}?quantity=${quantity}`, {}, { withCredentials: true })
+      .then(() => alert("장바구니에 추가되었습니다."))
       .catch((err) => {
         if (err.response && err.response.status === 401) {
           alert("로그인이 필요합니다.");
           navigate("/login");
           return;
         }
-        console.error("장바구니 추가 중 오류:", err);
-        alert("장바구니에 추가하는 중 오류가 발생했습니다.");
+        console.error(err);
+        alert("장바구니 추가 중 오류가 발생했습니다.");
       });
   };
 
@@ -75,142 +83,85 @@ function ProductDetail() {
   };
 
   return (
-    <div>
+    <div className="product-detail-container">
       {loading && <p>로딩 중...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {product ? (
-        <div>
-          <h2>{product.name}</h2>
+        <>
+          <h2 className="product-title">{product.name}</h2>
 
-          {product.imageUrl && (
-            <div style={{ margin: "1rem 0" }}>
-              <img
-                src={
-                  product.imageUrl.startsWith("http")
-                    ? product.imageUrl
-                    : `http://localhost:8080${product.imageUrl}`
-                }
-                alt={product.name}
-                style={{
-                  maxWidth: "300px",
-                  borderRadius: "8px",
-                  border: "1px solid #ccc",
-                }}
-              />
-            </div>
-          )}
+          <div className="product-image-container">
+            <img
+              className="product-image"
+              src={product.imageUrl?.startsWith("http") ? product.imageUrl : `http://localhost:8080${product.imageUrl}`}
+              onError={(e) => (e.target.src = "http://localhost:8080/static/images/noimage.jpg")}
+              alt={product.name}
+            />
+          </div>
 
-          <p>설명: {product.description}</p>
-          <p>가격: ₩{product.price}</p>
+          <p className="product-description">{product.description}</p>
+          <p className="product-price">{product.price.toLocaleString()}원</p>
 
-          <div
-            style={{
-              marginTop: "1rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-            }}
-          >
-            <button
-              onClick={() => handleQuantityChange("decrease")}
-              style={{ backgroundColor: "#ddd", border: "none", padding: "0.5rem", cursor: "pointer" }}
-            >
-              -
-            </button>
+          <div className="quantity-control">
+            <button onClick={() => handleQuantityChange("decrease")}>-</button>
             <input
               type="number"
               value={quantity}
               min="1"
               onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-              style={{
-                width: "50px",
-                textAlign: "center",
-                padding: "0.3rem",
-                borderRadius: "4px",
-                border: "1px solid #ddd",
-              }}
             />
-            <button
-              onClick={() => handleQuantityChange("increase")}
-              style={{ backgroundColor: "#ddd", border: "none", padding: "0.5rem", cursor: "pointer" }}
-            >
-              +
-            </button>
+            <button onClick={() => handleQuantityChange("increase")}>+</button>
           </div>
 
-          <div style={{ marginTop: "1rem" }}>
-            <button
-              onClick={handleAddToCart}
-              style={{
-                marginRight: "8px",
-                backgroundColor: "#4CAF50",
-                color: "#fff",
-                border: "none",
-                padding: "0.5rem 1rem",
-                cursor: "pointer",
-                borderRadius: "4px",
-              }}
-            >
+          <div className="action-buttons">
+            <button className="add-to-cart" onClick={handleAddToCart}>
               장바구니에 추가
             </button>
-            <button
-              onClick={handleOrder}
-              style={{
-                backgroundColor: "#2200ffff",
-                color: "#fff",
-                border: "none",
-                padding: "0.5rem 1rem",
-                cursor: "pointer",
-                borderRadius: "4px",
-              }}
-            >
+            <button className="order-now" onClick={handleOrder}>
               주문하기
             </button>
           </div>
 
-          <h3 style={{ marginTop: "2rem" }}>리뷰</h3>
+          <div className="review-section">
+            <h3>리뷰</h3>
 
-          {product.reviews && product.reviews.content && product.reviews.content.length > 0 ? (
-            <>
-              <ul>
-                {product.reviews.content.slice().reverse().map((review) => (
-                  <li key={review.id} style={{ marginBottom: "1rem" }}>
-                    <strong>{review.reviewer}</strong> - ⭐ {review.rating}/5{" "}
-                    ({new Date(review.reviewDate).toLocaleDateString("ko-KR")})
-                    <br />
-                    {review.reviewText}
-                  </li>
-                ))}
-              </ul>
-
-              {product.reviews.totalPages > 1 && (
-                <div style={{ marginTop: "1rem" }}>
-                  {[...Array(product.reviews.totalPages)].map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => goToPage(idx)}
-                      disabled={idx === page}
-                      style={{
-                        margin: "0 0.25rem",
-                        fontWeight: idx === page ? "bold" : "normal",
-                        padding: "0.3rem 0.6rem",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                        backgroundColor: idx === page ? "#ddd" : "white",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {idx + 1}
-                    </button>
+            {product.reviews?.content?.length > 0 ? (
+              <>
+                <ul className="review-list">
+                  {product.reviews.content.slice().reverse().map((review) => (
+                    <li className="review-item" key={review.id}>
+                      <strong>{review.reviewer}</strong>{" "}
+                      <span className="review-date">
+                        ({new Date(review.reviewDate).toLocaleDateString("ko-KR")})
+                      </span>
+                      <div>
+                        {renderStars(review.rating)} <span>{review.rating}</span>
+                      </div>
+                      <p>{review.reviewText}</p>
+                    </li>
                   ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <p>아직 등록된 리뷰가 없습니다.</p>
-          )}
-        </div>
+                </ul>
+
+                {product.reviews.totalPages > 1 && (
+                  <div className="pagination">
+                    {[...Array(product.reviews.totalPages)].map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => goToPage(idx)}
+                        className={idx === page ? "active" : ""}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <p>아직 등록된 리뷰가 없습니다.</p>
+            )}
+          </div>
+        </>
       ) : (
         !loading && <p>상품 정보를 찾을 수 없습니다.</p>
       )}
@@ -218,4 +169,4 @@ function ProductDetail() {
   );
 }
 
-export { ProductDetail };
+export default ProductDetail;

@@ -28,7 +28,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByCategoryAndNameContainingIgnoreCase(Category category, String name, Pageable pageable);
 
-    @Query(value = "SELECT p.id, p.name, p.image_Url AS thumbnailUrl, p.category, p.price, COUNT(oi.id) AS sales30d, COALESCE(CAST(AVG(r.rating) AS DOUBLE), 0) AS averageRating " +
+    @Query(value = "SELECT p.id, p.name, p.image_Url AS thumbnailUrl, p.category, p.price, COUNT(oi.id) AS sales30d, " +
+                   "COALESCE(CAST(AVG(r.rating) AS DOUBLE), 0) AS averageRating, COUNT(DISTINCT r.id) AS reviewCount " +
                    "FROM product p " +
                    "JOIN order_item oi ON p.id = oi.product_id " +
                    "JOIN orders o ON oi.order_id = o.id " +
@@ -40,7 +41,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<PopularProductDTO> findTop3ByOrderTimes();
     
     @Query(value = "SELECT new com.example.project.dto.ProductListDTO(" +
-                "p.id, p.name, p.imageUrl, p.price, p.stock, p.category, COALESCE(AVG(r.rating), 0)) " +
+                "p.id, p.name, p.imageUrl, p.price, p.stock, p.category, COALESCE(AVG(r.rating), 0), COUNT(r)) " +
                 "FROM Product p " +
                 "LEFT JOIN p.reviews r " +
                 "WHERE (:category IS NULL OR p.category = :category) " +

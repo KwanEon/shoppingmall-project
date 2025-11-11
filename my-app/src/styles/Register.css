@@ -1,0 +1,69 @@
+/* 전체 화면 중앙 정렬 */
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f9f9f9;
+}
+
+/* 회원가입 박스 */
+.signup-box {
+  width: 400px;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* 제목 */
+.signup-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+/* 입력창 */
+.signup-box input {
+  width: 100%;
+  max-width: 350px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.signup-box input:focus {
+  border-color: #ff7e5f;
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 126, 95, 0.3);
+}
+
+/* 회원가입 버튼 */
+.signup-box button {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, #ff7e5f, #feb47b);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.signup-box button:hover {
+  opacity: 0.9;
+}
+
+/* 오류 메시지 */
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: left;
+}

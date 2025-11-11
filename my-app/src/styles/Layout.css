@@ -1,0 +1,70 @@
+/* 헤더 */
+.layout-header {
+  position: relative;
+  padding: 1rem 2rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(90deg, #ff7e5f, #feb47b);
+  color: #fff;
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* 타이틀 */
+.layout-header h1 {
+  cursor: pointer;
+  text-align: center;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* 헤더 오른쪽 버튼 그룹 */
+.header-buttons {
+  position: absolute;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* 로그인/회원가입/로그아웃 버튼 */
+.header-buttons button {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  background-color: #fff;
+  color: #ff7e5f;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.header-buttons button:hover {
+  background-color: #ffe0d4;
+}
+
+/* 사용자 이름 스타일 */
+.user-name {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  background-color: #fff;
+  color: #ff7e5f;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.user-name:hover {
+  background-color: #ffe0d4;
+}
+
+/* 메인 */
+.layout-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}

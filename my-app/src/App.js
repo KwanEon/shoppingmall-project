@@ -4,8 +4,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EmailVerify from "./pages/EmailVerify";
 import Home from "./pages/Main";
-import { ProductList } from "./pages/Products";
-import { ProductDetail } from "./pages/ProductDetail";
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import AddProduct from "./pages/AddProduct";
 import EditProduct from "./pages/EditProduct";
 import MyPage from "./pages/MyPage";
@@ -34,7 +34,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/auth/verify" element={<EmailVerify />} />
           <Route path="/" element={<Home />} />
-          <Route path="/products" element={<ProductList />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/products/:productId" element={<ProductDetail />} />
           <Route path="/edit-product/:productId" element={<EditProduct />} />

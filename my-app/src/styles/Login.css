@@ -1,0 +1,86 @@
+/* 전체 화면 중앙 정렬 */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f9f9f9;
+}
+
+/* 로그인 박스 스타일 */
+.login-box {
+  width: 350px;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* 제목 */
+.login-title {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  color: #333;
+  font-weight: bold;
+}
+
+/* 입력창 */
+.login-form input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.login-form input:focus {
+  border-color: #ff7e5f; /* 헤더 색상 강조 */
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 126, 95, 0.3);
+}
+
+/* 로그인 버튼 */
+.login-form button {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, #ff7e5f, #feb47b);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.login-form button:hover {
+  opacity: 0.9;
+}
+
+/* 오류 메시지 */
+.error-message {
+  color: red;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* 추가: 회원가입 링크 */
+.login-footer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.login-footer span {
+  color: #ff7e5f;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.login-footer span:hover {
+  text-decoration: underline;
+}

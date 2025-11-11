@@ -20,8 +20,9 @@ public class ProductListDTO {
     private int price;
     private int stock;
     private Double averageRating;
+    private Long reviewCount;
 
-    public ProductListDTO(Long id, String name, String imageUrl, int price, int stock, Category category, Number averageRating) {
+    public ProductListDTO(Long id, String name, String imageUrl, int price, int stock, Category category, Number averageRating, Long reviewCount) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
@@ -29,5 +30,6 @@ public class ProductListDTO {
         this.stock = stock;
         this.category = category;
         this.averageRating = averageRating == null ? 0.0 : averageRating.doubleValue();
+        this.reviewCount = reviewCount;
     }
 }

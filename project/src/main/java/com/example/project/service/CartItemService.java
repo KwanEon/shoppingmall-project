@@ -46,17 +46,9 @@ public class CartItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<CartItemDTO> getCartItemDTOsByUserId(Long userId) {  // 장바구니 DTO 변환
-        List<CartItem> cartItems = cartItemRepository.findByUserId(userId);
-        return cartItems.stream()
-            .map(cartItem -> new CartItemDTO(
-                cartItem.getId(),
-                cartItem.getProduct().getId(),
-                cartItem.getProduct().getName(),
-                cartItem.getProduct().getPrice(),
-                cartItem.getQuantity()
-            ))
-            .toList();
+    public List<CartItemDTO> getCartItemDTOsByUserId(Long userId) {  // 장바구니 DTO 반환
+        List<CartItemDTO> cartItems = cartItemRepository.findDTOByUserId(userId);
+        return cartItems;
     }
 
     public void updateCartItem(Long id, int change) {   // 장바구니 수량 변경

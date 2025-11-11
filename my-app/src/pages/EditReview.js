@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 
-function ReviewEditForm() {
+function EditReview() {
   const { userRole } = useContext(AuthContext);
   const { reviewId } = useParams();
   const navigate = useNavigate();
@@ -123,4 +123,4 @@ function ReviewEditForm() {
   );
 }
 
-export default ReviewEditForm;
+export default EditReview;

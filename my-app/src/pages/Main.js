@@ -4,6 +4,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as fullStar, faStarHalfAlt as halfStar } from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
+import "../styles/Main.css";
 
 function Main() {
   const navigate = useNavigate();
@@ -40,74 +41,39 @@ function Main() {
   };
 
   return (
-    <section style={{ padding: "2rem" }}>
+    <section className="main-section">
       <h2>쇼핑몰 프로젝트 메인</h2>
 
-      <button
-        onClick={goToProducts}
-        style={{
-          margin: "1rem 0",
-          padding: "0.5rem 1rem",
-          cursor: "pointer",
-        }}
-      >
+      <button className="btn" onClick={goToProducts}>
         상품 목록 보기
       </button>
-
+      <br></br><br></br>
       <h3>🔥 인기상품 TOP 3</h3>
-      <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+      <div className="popular-products">
         {popularProducts.map((product) => (
-          <div
-            key={product.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "1rem",
-              width: "200px",
-              textAlign: "center",
-            }}
-          >
+          <div key={product.id} className="product-card">
             <img
               onClick={() => navigate(`products/${product.id}`)}
               src={
-                product.imageUrl.startsWith("http")
+                product.imageUrl?.startsWith("http")
                   ? product.imageUrl
                   : `http://localhost:8080${product.imageUrl}`
               }
+              onError={(e) => {
+                e.target.src = "http://localhost:8080/static/images/noimage.jpg";
+              }}
               alt={product.name}
-              style={{
-                width: "100%",
-                height: "150px",
-                objectFit: "cover",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
             />
-            <h4
-              onClick={() => navigate(`products/${product.id}`)}
-              style={{
-                cursor: "pointer",
-                color: "blue",
-              }}
-            >
+            <h4 onClick={() => navigate(`products/${product.id}`)}>
               {product.name}
             </h4>
-            <p>{product.category}</p> <p>{product.price.toLocaleString()}</p>
-
-            {/* ⭐ 평균 별점 + 숫자 표시 */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "0.3rem",
-              }}
-            >
+            <p>{product.category}</p>
+            <p>{product.price.toLocaleString()}원</p>
+            <div className="rating">
               {renderStars(product.averageRating)}
-              <span style={{ color: "#333", marginLeft: "0.3rem" }}>
-                {product.averageRating.toFixed(1)}
-              </span>
+              <span>{product.averageRating.toFixed(1)}</span>
             </div>
+            <small>({product.reviewCount})</small>
           </div>
         ))}
       </div>

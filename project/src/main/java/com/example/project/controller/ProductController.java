@@ -34,7 +34,7 @@ public class ProductController {
     public ResponseEntity<Page<ProductListDTO>> getProducts(@RequestParam(value = "category", required = false) Category category,
                                                         @RequestParam(value = "keyword", required = false) String keyword,
                                                         @RequestParam(value = "page", defaultValue = "0") int page) {
-        PageRequest pageRequest = PageRequest.of(page, 10);
+        PageRequest pageRequest = PageRequest.of(page, 8);
         Page<ProductListDTO> productListDTOs = productService.findAllProducts(category, keyword, pageRequest);
         return ResponseEntity.ok(productListDTOs);
     }

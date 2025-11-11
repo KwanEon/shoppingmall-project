@@ -5,6 +5,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as fullStar, faStarHalfAlt as halfStar } from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
+import "../styles/ProductList.css";
 
 const categoryOptions = [
   { value: "", label: "카테고리 선택" },
@@ -15,7 +16,7 @@ const categoryOptions = [
   { value: "TOYS", label: "장난감" },
 ];
 
-function ProductList() {
+function Products() {
   const { userRole } = useContext(AuthContext);
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -34,7 +35,7 @@ function ProductList() {
         <FontAwesomeIcon
           key={i}
           icon={rating >= starValue ? fullStar : rating >= starValue - 0.5 ? halfStar : emptyStar}
-          style={{ color: "#FFD700" }}
+          className="star"
         />
       );
     });
@@ -89,79 +90,45 @@ function ProductList() {
   const handlePageChange = (newPage) => fetchProducts(newPage);
 
   return (
-    <section style={{ padding: "2rem" }}>
+    <section className="main-section">
       <h2>상품 목록</h2>
 
-    <form
-      onSubmit={handleSearch}
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: "0.5rem",
-        marginBottom: "1rem",
-      }}
-    >
-      <select
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        style={{ padding: "0.4rem 0.6rem", borderRadius: "6px", border: "1px solid #ccc" }}
-      >
-        {categoryOptions.map(({ value, label }) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
+      <form className="search-form" onSubmit={handleSearch}>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          {categoryOptions.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
 
-      <input
-        type="text"
-        placeholder="검색어 입력"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-        style={{ padding: "0.4rem 0.6rem", borderRadius: "6px", border: "1px solid #ccc", minWidth: "200px" }}
-      />
+        <input
+          type="text"
+          placeholder="검색어 입력"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+        />
 
-      <button
-        type="submit"
-        style={{
-          padding: "0.4rem 0.8rem",
-          borderRadius: "6px",
-          border: "none",
-          backgroundColor: "#111",
-          color: "#fff",
-          cursor: "pointer",
-        }}
-      >
-        검색
-      </button>
-    </form>
-
+        <button type="submit" className="btn">
+          검색
+        </button>
+      </form>
 
       {loading && <p>로딩 중...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
       {userRole === "ROLE_ADMIN" && (
-        <div style={{ marginBottom: "1rem" }}>
-          <button onClick={handleAddProduct}>상품 추가</button>
+        <div className="admin-actions">
+          <button className="btn" onClick={handleAddProduct}>상품 추가</button>
         </div>
       )}
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+      <div className="product-grid">
         {products.length === 0 ? (
           <p>상품이 없습니다.</p>
         ) : (
           products.map((product) => (
-            <div
-              key={product.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "1rem",
-                width: "200px",
-                textAlign: "center",
-              }}
-            >
+            <div key={product.id} className="product-card">
               <img
                 onClick={() => navigate(`/products/${product.id}`)}
                 src={
@@ -169,34 +136,22 @@ function ProductList() {
                     ? product.imageUrl
                     : `http://localhost:8080${product.imageUrl}`
                 }
+                onError={(e) => { e.target.src = "http://localhost:8080/static/images/noimage.jpg"; }}
                 alt={product.name}
-                style={{
-                  width: "100%",
-                  height: "150px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                  cursor: "pointer" }}
               />
-              <h4
-                onClick={() => navigate(`/products/${product.id}`)}
-                style={{ cursor: "pointer", color: "blue"}}
-              >
-                {product.name}
-              </h4>
-              <p>{product.category}</p> <p>{product.price.toLocaleString()}원</p>
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "0.3rem" }}>
+              <h4 onClick={() => navigate(`/products/${product.id}`)}>{product.name}</h4>
+              <p>{product.category}</p>
+              <p>{product.price.toLocaleString()}원</p>
+              <div className="rating">
                 {renderStars(product.averageRating)}
                 <span>{product.averageRating?.toFixed(1) || 0}</span>
               </div>
+              <small>({product.reviewCount})</small>
 
               {userRole === "ROLE_ADMIN" && (
-                <div style={{ marginTop: "0.5rem" }}>
-                  <button onClick={() => handleEditProduct(product.id)}>수정</button>
-                  <button onClick={() => handleDeleteProduct(product.id)}>삭제</button>
+                <div className="admin-actions">
+                  <button className="btn" onClick={() => handleEditProduct(product.id)}>수정</button>
+                  <button className="btn btn-danger" onClick={() => handleDeleteProduct(product.id)}>삭제</button>
                 </div>
               )}
             </div>
@@ -205,21 +160,13 @@ function ProductList() {
       </div>
 
       {totalPages > 1 && (
-        <div style={{ marginTop: "1rem" }}>
+        <div className="pagination">
           {[...Array(totalPages)].map((_, idx) => (
             <button
               key={idx}
               onClick={() => handlePageChange(idx)}
               disabled={idx === page}
-              style={{
-                margin: "0 0.25rem",
-                fontWeight: idx === page ? "bold" : "normal",
-                padding: "0.3rem 0.6rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                backgroundColor: idx === page ? "#ddd" : "white",
-                cursor: "pointer",
-              }}
+              className={idx === page ? "btn active" : "btn"}
             >
               {idx + 1}
             </button>
@@ -230,4 +177,4 @@ function ProductList() {
   );
 }
 
-export { ProductList };
+export default Products;
