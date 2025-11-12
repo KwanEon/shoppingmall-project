@@ -18,6 +18,7 @@ public class OrderItemDTO {
     private Long orderId;
     private Long productId;
     private String productName;
+    private String imageUrl;
     private int quantity;
     private int price;
     private Long reviewId;
@@ -28,6 +29,7 @@ public class OrderItemDTO {
                 .orderId(orderItem.getOrder().getId())
                 .productId(orderItem.getProduct().getId())
                 .productName(orderItem.getProduct().getName())
+                .imageUrl(orderItem.getProduct().getImageUrl())
                 .quantity(orderItem.getQuantity())
                 .price(orderItem.getPrice())
                 .reviewId(reviewId)

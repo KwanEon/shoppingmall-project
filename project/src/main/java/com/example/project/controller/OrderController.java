@@ -4,6 +4,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.example.project.dto.CartItemDTO;
 import com.example.project.dto.OrderDTO;
 import com.example.project.dto.KakaoPayReadyResponseDTO;
@@ -135,8 +137,10 @@ public class OrderController {
     }
 
     @GetMapping("/auth/orders")   // 현재 로그인한 유저의 주문 목록 조회
-    public ResponseEntity<?> getCurrentUserOrders(@AuthenticationPrincipal CustomUserDetails principal) {
-        List<OrderDTO> orders = orderService.getOrdersByUserId(principal.getUserId());
+    public ResponseEntity<?> getCurrentUserOrders(@AuthenticationPrincipal CustomUserDetails principal,
+                                                  @RequestParam(value = "page", defaultValue = "0") int pageable) {
+        PageRequest pageRequest = PageRequest.of(pageable, 5);
+        Page<OrderDTO> orders = orderService.getOrdersByUserId(principal.getUserId(), pageRequest);
         return ResponseEntity.ok(orders);
     }
 

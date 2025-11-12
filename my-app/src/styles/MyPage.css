@@ -1,0 +1,203 @@
+/* 마이페이지 메인 섹션 */
+.mypage-section {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 탭 버튼 컨테이너 */
+.tab-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* 탭 버튼 */
+.tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  background-color: #ff7e5f;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tab-btn:hover {
+  background-color: #feb47b;
+}
+
+.tab-btn.active {
+  background-color: #feb47b;
+  font-weight: bold;
+}
+
+/* 주문 목록 */
+.order-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 주문 카드 */
+.order-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: #fafafa;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* 주문 헤더 */
+.order-header {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+/* 주문 아이템 리스트 */
+.order-items {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+/* 주문 아이템 카드 */
+.order-item-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  transition: box-shadow 0.2s;
+}
+
+.order-item-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* 주문 아이템 이미지 */
+.order-item-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* 주문 아이템 정보 */
+.order-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+/* 상품 링크 */
+.product-link {
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.product-link:hover {
+  text-decoration: none;
+}
+
+/* 리뷰 작성 버튼 */
+.btn-review-create {
+  margin-left: 8px;
+  max-width: 55px;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  background-color: #ff7e5f;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn-review-create:hover {
+  background-color: #feb47b;
+}
+
+.btn-review-edit {
+  margin-left: 8px;
+  max-width: 55px;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  background-color: #00b53f;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn-review-edit:hover {
+  background-color: #feb47b;
+}
+
+.btn-review-create.small,
+.btn-review-edit.small {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+}
+
+/* 관리자 버튼 그룹 */
+.admin-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 페이지네이션 */
+.pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.pagination .btn {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #ff7e5f; /* 상품 목록 색상 */
+  cursor: pointer;
+}
+
+.pagination .btn:hover {
+  background-color: #ffe0d4;
+}
+
+.pagination .btn.active {
+  background-color: #feb47b;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* 에러 메시지 */
+.error-message {
+  color: red;
+  text-align: center;
+  margin: 0.5rem 0;
+}

@@ -9,7 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
 import com.example.project.dto.KakaoPayReadyRequestDTO;
@@ -31,14 +35,18 @@ import com.example.project.repository.ProductRepository;
 import com.example.project.repository.ReviewRepository;
 import com.example.project.repository.UserRepository;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.function.Function;
 
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class OrderService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
@@ -134,26 +142,42 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderDTO> getOrdersByUserId(Long userId) {   // 사용자별 주문 목록 조회
+    public Page<OrderDTO> getOrdersByUserId(Long userId, Pageable pageable) {   // 사용자별 주문 목록 조회
         Map<Long, Long> myReviewMap = reviewRepository.findByUserId(userId).stream()
                 .collect(Collectors.toMap(r -> r.getProduct().getId(), Review::getId));
 
-        List<OrderDTO> orderDTOs = orderRepository.findByUserId(userId).stream()
-                .map((Order order) -> OrderDTO.builder()
-                        .id(order.getId())
-                        .userId(order.getUser().getId())
-                        .orderDate(order.getOrderDate().toString())
-                        .status(order.getStatus().name())
-                        .totalPrice(order.getTotalPrice())
-                        .orderItems(order.getOrderItems().stream()
-                            .map(orderItem -> OrderItemDTO.from(
-                                orderItem,
-                                myReviewMap.getOrDefault(orderItem.getProduct().getId(), null)
-                            ))
-                            .toList())
-                        .build())
-                .toList();
-        return orderDTOs;
+        Page<Long> idPage = orderRepository.findOrderIdsByUserId(userId, pageable);
+        List<Long> ids = idPage.getContent();
+
+        if (ids.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, idPage.getTotalElements());
+        }
+
+        List<Order> orders = orderRepository.findOrdersWithItemsByIds(ids);
+
+        Map<Long, Order> orderMap = orders.stream()
+                .collect(Collectors.toMap(Order::getId, Function.identity()));
+
+        List<OrderDTO> result = new ArrayList<>();
+        for (Long oid : ids) {
+            Order o = orderMap.get(oid);
+
+            OrderDTO odto = OrderDTO.builder()
+                    .id(o.getId())
+                    .userId(o.getUser().getId())
+                    .orderDate(o.getOrderDate().toString())
+                    .status(o.getStatus().name())
+                    .totalPrice(o.getTotalPrice())
+                    .build();
+
+            for (OrderItem oi : o.getOrderItems()) {
+                OrderItemDTO it = OrderItemDTO.from(oi, myReviewMap.getOrDefault(oi.getProduct().getId(), null));
+                odto.getOrderItems().add(it);
+            }
+            result.add(odto);
+        }
+
+        return new PageImpl<>(result, pageable, idPage.getTotalElements());
     }
 
     public void cancelOrder(Long orderId) {     // 주문 취소

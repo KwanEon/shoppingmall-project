@@ -60,6 +60,7 @@
   background-color: #ff4d4f;
   color: #fff;
   border: none;
+  font-weight: bold;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   cursor: pointer;
@@ -78,6 +79,7 @@
   padding: 0.7rem 1.5rem;
   border-radius: 6px;
   border: none;
+  font-weight: bold;
   cursor: pointer;
   color: #fff;
 }

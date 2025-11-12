@@ -161,16 +161,32 @@ function Products() {
 
       {totalPages > 1 && (
         <div className="pagination">
-          {[...Array(totalPages)].map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => handlePageChange(idx)}
-              disabled={idx === page}
-              className={idx === page ? "btn active" : "btn"}
-            >
-              {idx + 1}
-            </button>
-          ))}
+          <button className="btn" onClick={() => handlePageChange(0)} disabled={page === 0}>
+            First
+          </button>
+          <button className="btn" onClick={() => handlePageChange(page - 1)} disabled={page === 0}>
+            Prev
+          </button>
+
+          {[...Array(totalPages)].map((_, idx) => {
+            if (idx < page - 2 || idx > page + 2) return null;
+            return (
+              <button
+                key={idx}
+                onClick={() => handlePageChange(idx)}
+                className={idx === page ? "btn active" : "btn"}
+              >
+                {idx + 1}
+              </button>
+            );
+          })}
+
+          <button className="btn" onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages - 1}>
+            Next
+          </button>
+          <button className="btn" onClick={() => handlePageChange(totalPages - 1)} disabled={page >= totalPages - 1}>
+            Last
+          </button>
         </div>
       )}
     </section>

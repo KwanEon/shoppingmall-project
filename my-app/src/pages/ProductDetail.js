@@ -145,15 +145,49 @@ function ProductDetail() {
 
                 {product.reviews.totalPages > 1 && (
                   <div className="pagination">
-                    {[...Array(product.reviews.totalPages)].map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => goToPage(idx)}
-                        className={idx === page ? "active" : ""}
-                      >
-                        {idx + 1}
-                      </button>
-                    ))}
+                    <button
+                      className="btn"
+                      onClick={() => goToPage(0)}
+                      disabled={page === 0}
+                    >
+                      First
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={() => goToPage(page - 1)}
+                      disabled={page === 0}
+                    >
+                      Prev
+                    </button>
+
+                    {[...Array(product.reviews.totalPages)].map((_, idx) => {
+                      // 현재 페이지 ±2만 보여주기
+                      if (idx < page - 2 || idx > page + 2) return null;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => goToPage(idx)}
+                          className={idx === page ? "btn active" : "btn"}
+                        >
+                          {idx + 1}
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      className="btn"
+                      onClick={() => goToPage(page + 1)}
+                      disabled={page >= product.reviews.totalPages - 1}
+                    >
+                      Next
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={() => goToPage(product.reviews.totalPages - 1)}
+                      disabled={page >= product.reviews.totalPages - 1}
+                    >
+                      Last
+                    </button>
                   </div>
                 )}
               </>
