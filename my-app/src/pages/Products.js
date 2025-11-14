@@ -91,7 +91,7 @@ function Products() {
 
   return (
     <section className="main-section">
-      <h2>상품 목록</h2>
+      <h1>상품 목록</h1>
 
       <form className="search-form" onSubmit={handleSearch}>
         <select value={category} onChange={(e) => setCategory(e.target.value)}>

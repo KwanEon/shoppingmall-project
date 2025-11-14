@@ -10,6 +10,7 @@ function Register() {
     password: "",
     email: "",
     phoneNumber: "",
+    address: ""
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -50,14 +51,15 @@ function Register() {
       <div className="signup-box">
         <h1 className="signup-title">회원가입</h1>
         <form onSubmit={handleSignup} noValidate>
-          {["username","name","password","email","phoneNumber"].map((field) => (
+          {["username","name","password","email","phoneNumber","address"].map((field) => (
             <div key={field} style={{ marginBottom: "1rem", textAlign: "left" }}>
               <label style={{ fontWeight: "bold" }}>
                 {field === "username" ? "아이디" :
                  field === "name" ? "이름" :
                  field === "password" ? "비밀번호" :
                  field === "email" ? "이메일" :
-                 "휴대전화"}
+                 field === "phoneNumber" ? "휴대전화" :
+                 "주소"}
               </label>
               <input
                 type={field === "password" ? "password" : field === "email" ? "email" : "text"}
@@ -67,7 +69,8 @@ function Register() {
                   field === "name" ? "이름" :
                   field === "password" ? "비밀번호" :
                   field === "email" ? "이메일" :
-                  "휴대전화"
+                  field === "phoneNumber" ? "휴대전화" :
+                  "주소"
                 }
                 value={formData[field]}
                 onChange={handleChange}

@@ -79,7 +79,7 @@ const MyPage = () => {
 
   return (
     <section className="mypage-section">
-      <h1>My Page</h1>
+      <h1>마이페이지</h1>
 
       {/* 탭 버튼 */}
       <div className="tab-container">
@@ -203,13 +203,31 @@ const MyPage = () => {
 
       {/* 계정 정보 */}
       {activeTab === "account" && (
-        <div>
+        <div className="account-info-table-wrapper">
           {accountInfo ? (
-            <div>
-              <p>이름: {user.name}</p>
-              <p>이메일: {user.email}</p>
-              <p>휴대전화: {user.phoneNumber}</p>
-            </div>
+            <>
+              <h2 className="account-title">계정 정보</h2>
+              <table className="account-info-table">
+                <tbody>
+                  <tr>
+                    <th>이름</th>
+                    <td>{user.name}</td>
+                  </tr>
+                  <tr>
+                    <th>이메일</th>
+                    <td>{user.email}</td>
+                  </tr>
+                  <tr>
+                    <th>주소</th>
+                    <td>{user.address}</td>
+                  </tr>
+                  <tr>
+                    <th>휴대전화</th>
+                    <td>{user.phoneNumber}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </>
           ) : (
             <p>계정 정보를 불러오는 중입니다...</p>
           )}

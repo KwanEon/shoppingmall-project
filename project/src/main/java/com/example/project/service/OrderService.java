@@ -74,6 +74,7 @@ public class OrderService {
 
         Order order = Order.builder()
                 .status(Order.OrderStatus.PENDING)
+                .address(user.getAddress())
                 .build();
 
         user.addOrder(order); // 양방향 연관관계 설정
@@ -127,6 +128,7 @@ public class OrderService {
         // 주문 생성
         Order order = Order.builder()
             .status(OrderStatus.PENDING)
+            .address(user.getAddress())
             .totalPrice(totalPrice)
             .build();
 

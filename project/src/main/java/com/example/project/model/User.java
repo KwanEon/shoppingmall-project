@@ -39,7 +39,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String address;
 
     public enum Role {

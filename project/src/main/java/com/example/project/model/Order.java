@@ -28,6 +28,9 @@ public class Order {
     private User user;
 
     @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
     @CreationTimestamp
     private LocalDateTime orderDate;
 

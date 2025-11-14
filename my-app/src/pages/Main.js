@@ -42,13 +42,13 @@ function Main() {
 
   return (
     <section className="main-section">
-      <h2>쇼핑몰 프로젝트 메인</h2>
+      <h2 className="main-title">쇼핑몰 프로젝트 메인</h2>
 
       <button className="btn" onClick={goToProducts}>
         상품 목록 보기
       </button>
       <br></br><br></br>
-      <h3>🔥 인기상품 TOP 3</h3>
+      <h3 className="section-title">🔥 인기상품 TOP 3</h3>
       <div className="popular-products">
         {popularProducts.map((product) => (
           <div key={product.id} className="product-card">

@@ -16,7 +16,10 @@ import com.example.project.model.User;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.FieldError;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -25,29 +28,43 @@ public class UserController {
   private final UserRepository userRepository;
   private final UserService userService;
 
-  @PostMapping("/register")      // 회원가입
-  public ResponseEntity<?> Register(@RequestBody @Valid RegisterDTO registerDTO, BindingResult result) {
-      if (result.hasErrors()) {
-          Map<String, String> fieldErrors = new HashMap<>();    // 필드별 에러 메시지 저장
-          for (FieldError error : result.getFieldErrors()) {    // 각 필드 에러 처리
-              fieldErrors.put(error.getField(), error.getDefaultMessage()); // 필드명과 에러 메시지 맵에 추가
-          }
-          return ResponseEntity.badRequest().body(Map.of(
-              "status", "validation_error",     // 상태 코드
-              "errors", fieldErrors               // 필드별 에러 메시지
-          ));
-      }
+    @PostMapping("/register")
+    public ResponseEntity<?> Register(@RequestBody @Valid RegisterDTO registerDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, List<FieldError>> grouped = new LinkedHashMap<>();
+            for (FieldError fe : result.getFieldErrors()) {
+                grouped.computeIfAbsent(fe.getField(), k -> new ArrayList<>()).add(fe);
+            }
 
-      try {
-          userService.saveUser(registerDTO);
-          return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공");
-      } catch (Exception e) {
-          return ResponseEntity.badRequest().body(Map.of(
-              "status", "error",               // 상태 코드
-              "message", e.getMessage()          // 에러 메시지
-          ));
-      }
-  }
+            Map<String, String> fieldErrors = new HashMap<>();
+            for (Map.Entry<String, List<FieldError>> entry : grouped.entrySet()) {
+                List<FieldError> list = entry.getValue();
+                FieldError primary = list.stream()
+                                        .filter(e -> {
+                                            String code = e.getCode();
+                                            return "NotBlank".equals(code) || "NotEmpty".equals(code) || "NotNull".equals(code);
+                                        })
+                                        .findFirst()
+                                        .orElse(list.get(0));
+                fieldErrors.put(entry.getKey(), primary.getDefaultMessage());
+            }
+
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "validation_error",
+                "errors", fieldErrors
+            ));
+        }
+
+        try {
+            userService.saveUser(registerDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", "error",
+                "message", e.getMessage()
+            ));
+        }
+    }
 
   @GetMapping("/admin/userlist")	// 유저 리스트 불러오기
   @PreAuthorize("hasRole('ADMIN')")

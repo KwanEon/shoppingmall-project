@@ -18,7 +18,7 @@ function ReviewForm() {
       hasRedirected.current = true;
       if (userRole === "ANONYMOUS") {
         alert("로그인이 필요합니다.");
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
 

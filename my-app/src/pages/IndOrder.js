@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import "../styles/Order.css";
 
 function IndOrder() {
   const { user, userRole, loading } = useContext(AuthContext);
@@ -9,7 +10,6 @@ function IndOrder() {
   const [searchParams] = useSearchParams();
   const rawQuantity = parseInt(searchParams.get("quantity"), 10);
   const quantity = isNaN(rawQuantity) || rawQuantity <= 0 ? 1 : rawQuantity;
-
   const [product, setProduct] = useState(null);
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -23,7 +23,7 @@ function IndOrder() {
       hasAlerted.current = true;
       if (userRole === "ANONYMOUS") {
         alert("로그인이 필요합니다.");
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -97,53 +97,27 @@ function IndOrder() {
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
-      <h2>개별 상품 주문</h2>
+    <div className="order-container">
+      <h2 className="order-title">개별 상품 주문</h2>
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label>배송지: </label>
-        <input
-          type="text"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          style={{ width: "100%", padding: "0.5rem", marginTop: "0.5rem" }}
-        />
+      <div className="input-group">
+        <label>배송지: {user.address}</label>
       </div>
 
-      <div style={{ marginBottom: "1rem" }}>
-        <label>연락처: </label>
-        <input
-          type="text"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          style={{ width: "100%", padding: "0.5rem", marginTop: "0.5rem" }}
-        />
+      <div className="input-group">
+        <label>연락처: {user.phoneNumber}</label>
       </div>
 
       <h3>주문 상품</h3>
-      <ul>
+      <ul className="order-item-list">
         <li>
-          {product.name} - {quantity}개 - ₩
-          {(product.price * quantity).toLocaleString()}
+          {product.name} ({quantity}개) - {totalPrice.toLocaleString()}원
         </li>
       </ul>
 
-      <p style={{ fontWeight: "bold", marginTop: "1rem" }}>
-        총 결제 금액: ₩{totalPrice.toLocaleString()}
-      </p>
+      <p className="total-price">총 결제 금액: {totalPrice.toLocaleString()}원</p>
 
-      <button
-        onClick={handlePayment}
-        style={{
-          marginTop: "1rem",
-          backgroundColor: "#4CAF50",
-          color: "#fff",
-          border: "none",
-          padding: "0.7rem 2rem",
-          cursor: "pointer",
-          borderRadius: "4px",
-        }}
-      >
+      <button className="order-button" onClick={handlePayment}>
         결제하기
       </button>
     </div>

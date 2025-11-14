@@ -12,7 +12,11 @@ function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  let from = location.state?.from?.pathname || "/";
+
+  if (from === "/login" || from === "/signup") {
+    from = "/";
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,7 +33,7 @@ function Login() {
       setUserRole(resRole.data);
 
       alert("로그인 되었습니다.");
-      navigate(from === "/login" ? "/" : from, { replace: true });
+      navigate(from === "/login" || from === "/register" ? "/" : from, { replace: true });
     } catch (err) {
       console.error("Login failed:", err);
       setError("아이디와 비밀번호를 확인해주세요.");

@@ -160,6 +160,50 @@
   padding: 0.3rem 0.6rem;
 }
 
+/* 계정 정보 표 영역 전체 */
+.account-info-table-wrapper {
+  margin-top: 20px;
+  max-width: 600px;
+}
+
+/* 제목 */
+.account-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #333;
+}
+
+/* 표 스타일 */
+.account-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+/* 왼쪽 칼럼: 항목명 */
+.account-info-table th {
+  width: 150px;
+  text-align: left;
+  padding: 12px 10px;
+  background: #f7f7f7;
+  border-bottom: 1px solid #ddd;
+  font-weight: 600;
+}
+
+/* 오른쪽 칼럼: 값 */
+.account-info-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 마지막 줄 border 제거 */
+.account-info-table tr:last-child th,
+.account-info-table tr:last-child td {
+  border-bottom: none;
+}
+
 /* 관리자 버튼 그룹 */
 .admin-actions {
   margin-top: 0.5rem;

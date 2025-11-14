@@ -18,7 +18,7 @@ function Layout({ children }) {
         setUserRole("ANONYMOUS");
         localStorage.removeItem("token");
         alert("로그아웃 되었습니다.");
-        navigate("/", { replace: true });
+        navigate("/");
       })
       .catch((err) => {
         console.error("로그아웃 중 오류 발생:", err);
