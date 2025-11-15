@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import "../styles/AddProduct.css";
 
 const categoryOptions = [
   { value: "ELECTRONICS", label: "전자제품" },
@@ -12,7 +13,7 @@ const categoryOptions = [
 ];
 
 function AddProduct() {
-  const { user, userRole, loading } = useContext(AuthContext);
+  const { userRole, loading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -40,11 +41,9 @@ function AddProduct() {
         return;
       }
     }
-  }, [userRole, navigate, user, loading]);
+  }, [userRole, navigate, loading]);
 
-  if (loading || userRole === "ANONYMOUS" || userRole !== "ROLE_ADMIN") {
-    return null;
-  }
+  if (loading || userRole === "ANONYMOUS" || userRole !== "ROLE_ADMIN") return null;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -72,12 +71,14 @@ function AddProduct() {
   };
 
   return (
-    <div>
-      <h2>상품 추가</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
+    <div className="add-product-container">
+      <h2 className="page-title">상품 추가</h2>
+
+      {error && <p className="error-text">{error}</p>}
+      {success && <p className="success-text">{success}</p>}
+
+      <form className="product-form" onSubmit={handleSubmit}>
+        <div className="form-group">
           <label>상품명</label>
           <input
             type="text"
@@ -87,7 +88,8 @@ function AddProduct() {
             required
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>가격</label>
           <input
             type="number"
@@ -97,7 +99,8 @@ function AddProduct() {
             required
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>재고</label>
           <input
             type="number"
@@ -107,7 +110,8 @@ function AddProduct() {
             required
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>설명</label>
           <textarea
             name="description"
@@ -115,7 +119,8 @@ function AddProduct() {
             onChange={handleInputChange}
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>카테고리</label>
           <select
             name="category"
@@ -133,9 +138,10 @@ function AddProduct() {
             ))}
           </select>
         </div>
-        <div>
-          <button type="submit">추가</button>
-          <button type="button" onClick={() => navigate("/products")}>
+
+        <div className="form-buttons">
+          <button type="submit" className="btn-submit">추가</button>
+          <button type="button" className="btn-cancel" onClick={() => navigate("/products")}>
             취소
           </button>
         </div>

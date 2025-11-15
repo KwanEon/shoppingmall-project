@@ -34,7 +34,7 @@ function ReviewForm() {
 
         try {
           // 2. 유저의 주문 목록에서 상품 구매 여부 확인
-          const res = await axios.get(`http://localhost:8080/auth/orders`, { withCredentials: true });
+          const res = await axios.get(`http://localhost:8080/auth/orders/all`, { withCredentials: true });
           const orders = res.data;
 
           let hasPurchased = false;

@@ -11,6 +11,7 @@ function Layout({ children }) {
   const { user, setUser, setUserRole } = useContext(AuthContext);
 
   const handleLogout = () => {
+    if (!window.confirm("로그아웃 하시겠습니까?")) return;
     axios
       .post(`http://localhost:8080/auth/logout`, {}, { withCredentials: true })
       .then(() => {

@@ -8,7 +8,6 @@ const MyPage = () => {
   const { user, userRole, loading } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("orders");
   const [orders, setOrders] = useState([]);
-  const [accountInfo, setAccountInfo] = useState(null);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loadingOrders, setLoadingOrders] = useState(false);
@@ -22,18 +21,6 @@ const MyPage = () => {
       navigate("/login", { replace: true });
       return;
     }
-
-    // 계정 정보 가져오기
-    const fetchAccountInfo = async () => {
-      try {
-        const res = await axios.get("http://localhost:8080/auth/user", { withCredentials: true });
-        setAccountInfo(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchAccountInfo();
   }, [userRole, navigate, loading]);
 
   useEffect(() => {
@@ -50,12 +37,10 @@ const MyPage = () => {
 
         const data = res.data;
         if (data && Array.isArray(data.content)) {
-          const paidOrders = data.content.filter(order => order.status === "PAID");
-          setOrders(paidOrders);
+          setOrders(data.content);
           setTotalPages(data.totalPages || 1);
         } else {
-          const paidOrders = Array.isArray(data) ? data.filter(o => o.status === "PAID") : [];
-          setOrders(paidOrders);
+          setOrders(Array.isArray(data) ? data : []);
           setTotalPages(1);
         }
       } catch (err) {
@@ -204,7 +189,7 @@ const MyPage = () => {
       {/* 계정 정보 */}
       {activeTab === "account" && (
         <div className="account-info-table-wrapper">
-          {accountInfo ? (
+          {user ? (
             <>
               <h2 className="account-title">계정 정보</h2>
               <table className="account-info-table">

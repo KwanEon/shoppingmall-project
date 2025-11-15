@@ -15,6 +15,26 @@
   margin-bottom: 2rem;
 }
 
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.order-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.15);
+}
+
+.order-text {
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .input-group {
   margin-bottom: 1.5rem;
 }
@@ -65,5 +85,5 @@
 }
 
 .order-button:hover {
-  opacity: 0.9;
+  background-color: hwb(141 24% 18%);
 }

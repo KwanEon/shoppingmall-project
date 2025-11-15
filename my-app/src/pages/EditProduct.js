@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import "../styles/AddProduct.css";
 
 const categoryOptions = [
   { value: "ELECTRONICS", label: "전자제품" },
@@ -88,12 +89,14 @@ function EditProduct() {
   }
   
   return (
-    <div>
-      <h2>상품 수정</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
+    <div className="add-product-container">
+      <h2 className="page-title">상품 수정</h2>
+
+      {error && <p className="error-text">{error}</p>}
+      {success && <p className="success-text">{success}</p>}
+
+      <form className="product-form" onSubmit={handleSubmit}>
+        <div className="form-group">
           <label>상품명</label>
           <input
             type="text"
@@ -103,7 +106,8 @@ function EditProduct() {
             required
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>가격</label>
           <input
             type="number"
@@ -113,7 +117,8 @@ function EditProduct() {
             required
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>재고</label>
           <input
             type="number"
@@ -123,7 +128,8 @@ function EditProduct() {
             required
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>설명</label>
           <textarea
             name="description"
@@ -131,7 +137,8 @@ function EditProduct() {
             onChange={handleInputChange}
           />
         </div>
-        <div>
+
+        <div className="form-group">
           <label>카테고리</label>
           <select
             name="category"
@@ -149,9 +156,16 @@ function EditProduct() {
             ))}
           </select>
         </div>
-        <div>
-          <button type="submit">수정</button>
-          <button type="button" onClick={() => navigate("/products")}>
+
+        <div className="form-buttons">
+          <button type="submit" className="btn-submit">
+            수정
+          </button>
+          <button
+            type="button"
+            className="btn-cancel"
+            onClick={() => navigate("/products")}
+          >
             취소
           </button>
         </div>

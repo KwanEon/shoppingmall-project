@@ -54,7 +54,9 @@ function ProductDetail() {
   const handleQuantityChange = (operation) => {
     setQuantity((prev) => {
       const newQty = operation === "increase" ? prev + 1 : prev - 1;
-      return newQty > 0 ? newQty : 1;
+      if (newQty < 1) newQty = 1;
+      if (newQty > 10) newQty = 10;
+      return newQty;
     });
   };
 
@@ -63,10 +65,16 @@ function ProductDetail() {
       .post(`http://localhost:8080/cartitem/${productId}?quantity=${quantity}`, {}, { withCredentials: true })
       .then(() => alert("장바구니에 추가되었습니다."))
       .catch((err) => {
-        if (err.response && err.response.status === 401) {
-          alert("로그인이 필요합니다.");
-          navigate("/login");
-          return;
+        if (err.response) {
+          if (err.response.status === 400) {
+            alert("장바구니 수량 제한: 최대 10개입니다.");
+            return;
+          }
+          if (err.response.status === 401) {
+            alert("로그인이 필요합니다.");
+            navigate("/login");
+            return;
+          }
         }
         console.error(err);
         alert("장바구니 추가 중 오류가 발생했습니다.");
@@ -104,14 +112,21 @@ function ProductDetail() {
           <p className="product-price">{product.price.toLocaleString()}원</p>
 
           <div className="quantity-control">
-            <button onClick={() => handleQuantityChange("decrease")}>-</button>
+            <button onClick={() => handleQuantityChange("decrease")} disabled={quantity <= 1}>-</button>
             <input
               type="number"
               value={quantity}
               min="1"
-              onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+              max="10"
+              onChange={(e) => {
+                let val = parseInt(e.target.value) || 1;
+                if (val < 1) val = 1;
+                if (val > 10) val = 10;
+                setQuantity(val);
+              }}
             />
-            <button onClick={() => handleQuantityChange("increase")}>+</button>
+            <button onClick={() => handleQuantityChange("increase")} disabled={quantity >= 10}>+</button>
+            <p className="product-all-price">{(product.price * quantity).toLocaleString()}원</p>
           </div>
 
           <div className="action-buttons">
@@ -161,7 +176,6 @@ function ProductDetail() {
                     </button>
 
                     {[...Array(product.reviews.totalPages)].map((_, idx) => {
-                      // 현재 페이지 ±2만 보여주기
                       if (idx < page - 2 || idx > page + 2) return null;
                       return (
                         <button

@@ -27,6 +27,11 @@ public class CartItemService {
         Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("해당 상품을 찾을 수 없습니다."));
         CartItem cartItem = cartItemRepository.findByUserIdAndProductId(userId, productId);
 
+        int current = (cartItem == null) ? 0 : cartItem.getQuantity();
+        if (current + quantity > 10) {
+            throw new IllegalArgumentException("장바구니 수량 제한을 초과합니다. 최대 10개까지 가능합니다.");
+        }
+
         if (cartItem != null) {
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
@@ -56,6 +61,8 @@ public class CartItemService {
         int newQuantity = cartItem.getQuantity() + change;
         if (newQuantity < 1) {
             throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
+        } else if (newQuantity > 10) {
+            throw new IllegalArgumentException("수량은 10 이하여야 합니다.");
         }
         cartItem.setQuantity(newQuantity);
         cartItemRepository.save(cartItem);

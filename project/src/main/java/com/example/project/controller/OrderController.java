@@ -42,8 +42,19 @@ public class OrderController {
         if (principal == null) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
-        cartItemService.addCartItem(principal.getUserId(), productId, quantity);
-        return ResponseEntity.status(HttpStatus.CREATED).body("상품이 장바구니에 추가되었습니다.");
+
+        if (quantity < 1) {
+            return ResponseEntity.badRequest().body("주문 수량은 최소 1개부터 가능합니다.");
+        } else if (quantity > 10) {
+            return ResponseEntity.badRequest().body("주문 수량은 최대 10개까지만 가능합니다.");
+        }
+
+        try {
+            cartItemService.addCartItem(principal.getUserId(), productId, quantity);
+            return ResponseEntity.status(HttpStatus.CREATED).body("상품이 장바구니에 추가되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PatchMapping("/cartitem/{cartId}") // 장바구니 아이템 수량 변경
@@ -106,6 +117,11 @@ public class OrderController {
                                             @PathVariable("productId") Long productId,
                                             @RequestParam("quantity") int quantity) {
         try {
+            if (quantity < 1) {
+                return ResponseEntity.badRequest().body("주문 수량은 최소 1개부터 가능합니다.");
+            } else if (quantity > 10) {
+                return ResponseEntity.badRequest().body("주문 수량은 최대 10개까지만 가능합니다.");
+            }
             Order order = orderService.createPendingOrder(principal.getUserId(), productId, quantity);
             KakaoPayReadyResponseDTO responseDTO = orderService.KakaoPayReady(principal.getUserId(), order, quantity);
 
@@ -136,7 +152,13 @@ public class OrderController {
         return ResponseEntity.ok("주문이 취소되었습니다.");
     }
 
-    @GetMapping("/auth/orders")   // 현재 로그인한 유저의 주문 목록 조회
+    @GetMapping("/auth/orders/all")     // 현재 로그인한 유저의 주문 목록 전체 조회
+    public ResponseEntity<?> getCurrentUserAllOrders(@AuthenticationPrincipal CustomUserDetails principal) {
+        List<OrderDTO> orders = orderService.getOrderDTOsByUserId(principal.getUserId());
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/auth/orders")   // 현재 로그인한 유저의 주문 목록 조회 (페이징)
     public ResponseEntity<?> getCurrentUserOrders(@AuthenticationPrincipal CustomUserDetails principal,
                                                   @RequestParam(value = "page", defaultValue = "0") int pageable) {
         PageRequest pageRequest = PageRequest.of(pageable, 5);

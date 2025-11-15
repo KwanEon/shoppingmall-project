@@ -72,35 +72,44 @@ function Cart() {
         <p className="cart-empty">장바구니가 비어 있습니다.</p>
       ) : (
         <div className="cart-grid">
-          {cartItems.map((item) => (
-            <div key={item.id} className="cart-item">
-              <img
-                src={item.imageUrl?.startsWith("http") ? item.imageUrl : `http://localhost:8080${item.imageUrl}`}
-                onError={(e) => { e.target.src = "http://localhost:8080/static/images/noimage.jpg"; }}
-                alt={item.productName}
-                onClick={() => navigate(`/products/${item.productId}`)}
-              />
+          {cartItems.map((item) => {
+            const itemTotal = item.productPrice * item.quantity; // 상품별 총 금액
+            return (
+              <div key={item.id} className="cart-item">
+                <img
+                  src={item.imageUrl?.startsWith("http") ? item.imageUrl : `http://localhost:8080${item.imageUrl}`}
+                  onError={(e) => { e.target.src = "http://localhost:8080/static/images/noimage.jpg"; }}
+                  alt={item.productName}
+                  onClick={() => navigate(`/products/${item.productId}`)}
+                />
 
-              <h4 onClick={() => navigate(`/products/${item.productId}`)}>{item.productName}</h4>
-              <p>{item.productPrice.toLocaleString()}원</p>
+                <h4 onClick={() => navigate(`/products/${item.productId}`)}>{item.productName}</h4>
+                <p>{item.productPrice.toLocaleString()}원</p>
+                <p>총 금액: {itemTotal.toLocaleString()}원</p> {/* 상품별 총 금액 */}
 
-              <div className="quantity-controls">
-                <button onClick={() => handleQuantityChange(item.id, "decrease")} disabled={item.quantity <= 1}>-</button>
-                <span>{item.quantity}</span>
-                <button onClick={() => handleQuantityChange(item.id, "increase")}>+</button>
+                <div className="quantity-controls">
+                  <button onClick={() => handleQuantityChange(item.id, "decrease")} disabled={item.quantity <= 1}>-</button>
+                  <span>{item.quantity}</span>
+                  <button onClick={() => handleQuantityChange(item.id, "increase")} disabled={item.quantity >= 10}>+</button>
+                </div>
+
+                <button className="remove-btn" onClick={() => handleRemoveItem(item.productId)}>삭제</button>
               </div>
-
-              <button className="remove-btn" onClick={() => handleRemoveItem(item.productId)}>삭제</button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {cartItems.length > 0 && (
-        <div className="cart-actions">
-          <button className="clear-btn" onClick={handleClearCart}>장바구니 비우기</button>
-          <button className="checkout-btn" onClick={handleCheckout}>주문하기</button>
-        </div>
+        <>
+          <p className="cart-total">
+            총 결제 금액: {cartItems.reduce((sum, item) => sum + item.productPrice * item.quantity, 0).toLocaleString()}원
+          </p>
+          <div className="cart-actions">
+            <button className="clear-btn" onClick={handleClearCart}>장바구니 비우기</button>
+            <button className="checkout-btn" onClick={handleCheckout}>주문하기</button>
+          </div>
+        </>
       )}
 
       {error && <p className="error-message">{error}</p>}

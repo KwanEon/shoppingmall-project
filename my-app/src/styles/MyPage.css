@@ -151,7 +151,7 @@
 }
 
 .btn-review-edit:hover {
-  background-color: #feb47b;
+  background-color: hwb(141 24% 18%);
 }
 
 .btn-review-create.small,

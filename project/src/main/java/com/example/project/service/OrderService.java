@@ -42,7 +42,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.function.Function;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -62,6 +61,68 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Order getOrderById(Long orderId) {   // 주문 상세 조회
         return orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getOrderDTOsByUserId(Long userId) {   // 사용자별 주문 목록 전체 조회
+        Map<Long, Long> myReviewMap = reviewRepository.findByUserId(userId).stream()
+                .collect(Collectors.toMap(r -> r.getProduct().getId(), Review::getId));
+
+        List<OrderDTO> orderDTOs = orderRepository.findByUserId(userId).stream()
+                .map((Order order) -> OrderDTO.builder()
+                        .id(order.getId())
+                        .userId(order.getUser().getId())
+                        .orderDate(order.getOrderDate().toString())
+                        .status(order.getStatus().name())
+                        .totalPrice(order.getTotalPrice())
+                        .orderItems(order.getOrderItems().stream()
+                            .map(orderItem -> OrderItemDTO.from(
+                                orderItem,
+                                myReviewMap.getOrDefault(orderItem.getProduct().getId(), null)
+                            ))
+                            .toList())
+                        .build())
+                .toList();
+        return orderDTOs;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderDTO> getOrdersByUserId(Long userId, Pageable pageable) {   // 사용자별 주문 목록 조회 (페이징)
+        Map<Long, Long> myReviewMap = reviewRepository.findByUserId(userId).stream()
+                .collect(Collectors.toMap(r -> r.getProduct().getId(), Review::getId));
+
+        Page<Long> idPage = orderRepository.findOrderIdsByUserId(userId, pageable);
+        List<Long> ids = idPage.getContent();
+
+        if (ids.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, idPage.getTotalElements());
+        }
+
+        List<Order> orders = orderRepository.findOrdersWithItemsByIds(ids);
+
+        Map<Long, Order> orderMap = orders.stream()
+                .collect(Collectors.toMap(Order::getId, Function.identity()));
+
+        List<OrderDTO> result = new ArrayList<>();
+        for (Long oid : ids) {
+            Order o = orderMap.get(oid);
+
+            OrderDTO odto = OrderDTO.builder()
+                    .id(o.getId())
+                    .userId(o.getUser().getId())
+                    .orderDate(o.getOrderDate().toString())
+                    .status(o.getStatus().name())
+                    .totalPrice(o.getTotalPrice())
+                    .build();
+
+            for (OrderItem oi : o.getOrderItems()) {
+                OrderItemDTO it = OrderItemDTO.from(oi, myReviewMap.getOrDefault(oi.getProduct().getId(), null));
+                odto.getOrderItems().add(it);
+            }
+            result.add(odto);
+        }
+
+        return new PageImpl<>(result, pageable, idPage.getTotalElements());
     }
 
     public Order createPendingOrderFromCart(Long userId) {      // 결제 전 주문 엔티티 생성(장바구니 기반)
@@ -141,45 +202,6 @@ public class OrderService {
         orderRepository.save(order);
 
         return order;
-    }
-
-    @Transactional(readOnly = true)
-    public Page<OrderDTO> getOrdersByUserId(Long userId, Pageable pageable) {   // 사용자별 주문 목록 조회
-        Map<Long, Long> myReviewMap = reviewRepository.findByUserId(userId).stream()
-                .collect(Collectors.toMap(r -> r.getProduct().getId(), Review::getId));
-
-        Page<Long> idPage = orderRepository.findOrderIdsByUserId(userId, pageable);
-        List<Long> ids = idPage.getContent();
-
-        if (ids.isEmpty()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, idPage.getTotalElements());
-        }
-
-        List<Order> orders = orderRepository.findOrdersWithItemsByIds(ids);
-
-        Map<Long, Order> orderMap = orders.stream()
-                .collect(Collectors.toMap(Order::getId, Function.identity()));
-
-        List<OrderDTO> result = new ArrayList<>();
-        for (Long oid : ids) {
-            Order o = orderMap.get(oid);
-
-            OrderDTO odto = OrderDTO.builder()
-                    .id(o.getId())
-                    .userId(o.getUser().getId())
-                    .orderDate(o.getOrderDate().toString())
-                    .status(o.getStatus().name())
-                    .totalPrice(o.getTotalPrice())
-                    .build();
-
-            for (OrderItem oi : o.getOrderItems()) {
-                OrderItemDTO it = OrderItemDTO.from(oi, myReviewMap.getOrDefault(oi.getProduct().getId(), null));
-                odto.getOrderItems().add(it);
-            }
-            result.add(odto);
-        }
-
-        return new PageImpl<>(result, pageable, idPage.getTotalElements());
     }
 
     public void cancelOrder(Long orderId) {     // 주문 취소

@@ -83,7 +83,7 @@ function CartOrder() {
 
   return (
     <div className="order-container">
-      <h2>결제 페이지</h2>
+      <h2 className="order-title">결제 페이지</h2>
 
       <div className="input-group">
         <label>배송지: {user.address}</label>
@@ -94,10 +94,23 @@ function CartOrder() {
       </div>
 
       <h3>주문 상품</h3>
-      <ul className="order-items">
+      <ul className="order-item-list">
         {cartItems.map((item) => (
-          <li key={item.id}>
-            {item.productName} ({item.quantity}개) - {(item.productPrice ?? 0) * item.quantity}원
+          <li key={item.id} className="order-item">
+            <img
+              src={
+                item.imageUrl?.startsWith("http")
+                  ? item.imageUrl
+                  : `http://localhost:8080${item.imageUrl}`
+              }
+              onError={(e) => { e.target.src = "http://localhost:8080/static/images/noimage.jpg"; }}
+              alt={item.name}
+              className="order-thumb"
+            />
+            <div className="order-text">
+              {item.productName} ({item.quantity}개) -{" "}
+              {(item.productPrice * item.quantity).toLocaleString()}원
+            </div>
           </li>
         ))}
       </ul>

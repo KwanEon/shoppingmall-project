@@ -10,6 +10,5 @@ import java.util.List;
 
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
-    // 주문 항목을 주문 ID로 조회
     List<OrderItem> findByOrderId(Long orderId);
 }

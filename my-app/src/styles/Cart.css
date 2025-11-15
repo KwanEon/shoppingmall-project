@@ -64,10 +64,11 @@
   padding: 0.5rem 1rem;
   border-radius: 20px;
   cursor: pointer;
+  transition: 0.2s;
 }
 
 .cart-item button.remove-btn:hover {
-  opacity: 0.9;
+  background-color: oklch(74.946% 0.15114 21.301);
 }
 
 .cart-actions {
@@ -82,15 +83,16 @@
   font-weight: bold;
   cursor: pointer;
   color: #fff;
+  transition: 0.2s;
 }
 
 .cart-actions .clear-btn {
-  background-color: #ff5722;
+  background-color: #ff4d4f;
   border-radius: 20px;
 }
 
 .cart-actions .clear-btn:hover {
-  opacity: 0.9;
+  background-color: oklch(74.946% 0.15114 21.301);
 }
 
 .cart-actions .checkout-btn {
@@ -99,7 +101,7 @@
 }
 
 .cart-actions .checkout-btn:hover {
-  opacity: 0.9;
+  background-color: hwb(141 24% 18%);
 }
 
 .error-message {

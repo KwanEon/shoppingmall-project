@@ -21,5 +21,5 @@ public class OrderDTO {
     private int totalPrice;
 
     @Builder.Default
-    private final List<OrderItemDTO> orderItems = new ArrayList<>();
+    private List<OrderItemDTO> orderItems = new ArrayList<>();
 }

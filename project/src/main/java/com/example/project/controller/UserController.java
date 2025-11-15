@@ -28,7 +28,7 @@ public class UserController {
   private final UserRepository userRepository;
   private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping("/register")   // 회원가입
     public ResponseEntity<?> Register(@RequestBody @Valid RegisterDTO registerDTO, BindingResult result) {
         if (result.hasErrors()) {
             Map<String, List<FieldError>> grouped = new LinkedHashMap<>();
