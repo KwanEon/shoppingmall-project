@@ -113,7 +113,7 @@ public class UserController {
   @GetMapping("/auth/role")   // 현재 로그인한 유저의 권한 조회
   public ResponseEntity<?> getCurrentUserRole(@AuthenticationPrincipal CustomUserDetails principal) {
     String role = principal.getAuthorities().isEmpty()
-                  ? "USER"
+                  ? "ANONYMOUS"
                   : principal.getAuthorities().iterator().next().getAuthority();
 
     return ResponseEntity.ok(role);

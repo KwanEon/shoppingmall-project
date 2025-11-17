@@ -28,7 +28,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByCategoryAndNameContainingIgnoreCase(Category category, String name, Pageable pageable);
 
-    @Query(value = "SELECT p.id, p.name, p.image_Url AS thumbnailUrl, p.category, p.price, COUNT(oi.id) AS sales30d, " +
+    @Query(value = "SELECT p.id, p.name, p.image_Url AS thumbnailUrl, p.category, p.price, COUNT(DISTINCT oi.id) AS sales30d, " +
                    "COALESCE(CAST(AVG(r.rating) AS DOUBLE), 0) AS averageRating, COUNT(DISTINCT r.id) AS reviewCount " +
                    "FROM product p " +
                    "JOIN order_item oi ON p.id = oi.product_id " +
