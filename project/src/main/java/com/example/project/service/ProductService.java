@@ -3,14 +3,11 @@ package com.example.project.service;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-
-import java.util.stream.Collectors;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.project.dto.PopularProductDTO;
 import com.example.project.dto.ProductDTO;
@@ -22,6 +19,15 @@ import com.example.project.model.Product.Category;
 import com.example.project.model.Review;
 import com.example.project.repository.ProductRepository;
 import com.example.project.repository.ReviewRepository;
+
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -69,10 +75,27 @@ public class ProductService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public void addProduct(ProductDTO productDTO) {   // 상품 추가
+    public void addProduct(ProductDTO productDTO, MultipartFile image) throws IOException {   // 상품 추가
+        Path imagesDir = Paths.get(System.getProperty("user.dir"), "images");
+        Files.createDirectories(imagesDir);
+
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            String original = StringUtils.cleanPath(image.getOriginalFilename());
+            String ext = "";
+            int dot = original.lastIndexOf('.');
+            if (dot >= 0) ext = original.substring(dot);
+
+            String filename = UUID.randomUUID().toString() + ext;
+            Path destination = imagesDir.resolve(filename);
+
+            image.transferTo(destination.toFile());
+            imageUrl = "/images/" + filename;
+        }
+
         Product product = Product.builder()
                 .name(productDTO.getName())
-                .imageUrl("/static/images/" + productDTO.getName() + ".jpg")
+                .imageUrl(imageUrl)
                 .description(productDTO.getDescription())
                 .price(productDTO.getPrice())
                 .stock(productDTO.getStock())
@@ -82,20 +105,48 @@ public class ProductService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public void updateProduct(Long id, ProductDTO productDTO) {  // 상품 수정
+    public void updateProduct(Long id, ProductDTO productDTO, MultipartFile image) throws IOException {  // 상품 수정
         Product product = getProductById(id);
         product.setName(productDTO.getName());
-        product.setImageUrl("/static/images/" + productDTO.getName() + ".jpg");
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
         product.setStock(productDTO.getStock());
         product.setCategory(productDTO.getCategory());
+
+        Path imagesDir = Paths.get(System.getProperty("user.dir"), "images");
+        Files.createDirectories(imagesDir);
+
+        if (image != null && !image.isEmpty()) {
+            // 기존 이미지 삭제
+            if (product.getImageUrl() != null) {
+                Path oldImage = Paths.get(product.getImageUrl().replace("/images/", "images/"));
+                Files.deleteIfExists(oldImage);
+            }
+
+            String original = StringUtils.cleanPath(image.getOriginalFilename());
+            String ext = "";
+            int dot = original.lastIndexOf('.');
+            if (dot >= 0) ext = original.substring(dot);
+
+            String filename = UUID.randomUUID().toString() + ext;
+            Path destination = imagesDir.resolve(filename);
+            image.transferTo(destination.toFile());
+            product.setImageUrl("/images/" + filename);
+        }
         productRepository.save(product);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteProduct(Long id) {    // 상품 삭제
+    public void deleteProduct(Long id) throws IOException {    // 상품 삭제
         Product product = getProductById(id);
+
+        // 이미지 삭제
+        if (product.getImageUrl() != null) {
+            // imageUrl이 "/images/uuid.jpg" 형식이라면 프로젝트 루트 기준으로 절대경로 계산
+            Path imagePath = Paths.get(System.getProperty("user.dir"), product.getImageUrl().substring(1));
+            Files.deleteIfExists(imagePath);  // 파일이 존재하면 삭제
+        }
+
         productRepository.delete(product);
     }
 

@@ -139,7 +139,7 @@ function IndOrder() {
                 : `http://localhost:8080${product.imageUrl}`
             }
             onError={(e) => {
-              e.target.src = "http://localhost:8080/static/images/noimage.jpg";
+              e.target.src = "http://localhost:8080/images/noimage.jpg";
             }}
             alt={product.name}
             className="order-thumb"

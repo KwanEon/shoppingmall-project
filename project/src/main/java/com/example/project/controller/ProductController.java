@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -20,6 +21,8 @@ import com.example.project.security.CustomUserDetails;
 import com.example.project.service.ProductService;
 import com.example.project.service.ReviewService;
 import jakarta.validation.Valid;
+
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -75,22 +78,24 @@ public class ProductController {
 
     @PostMapping // 상품 추가
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> addProduct(@RequestBody @Valid ProductDTO productDTO) {
-        productService.addProduct(productDTO);
+    public ResponseEntity<String> addProduct(@ModelAttribute @Valid ProductDTO productDTO,
+                                             @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
+        productService.addProduct(productDTO, image);
         return ResponseEntity.status(HttpStatus.CREATED).body("상품 추가 완료.");
     }
 
     @PutMapping("/{productId}") // 상품 수정
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateProduct(@PathVariable("productId") Long productId,
-                                                @RequestBody @Valid ProductDTO productDTO) {
-        productService.updateProduct(productId, productDTO);
+                                                @ModelAttribute @Valid ProductDTO productDTO,
+                                                @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
+        productService.updateProduct(productId, productDTO, image);
         return ResponseEntity.ok("상품 업데이트 완료.");
     }
 
     @DeleteMapping("/{productId}") // 상품 삭제
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId) {
+    public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long productId) throws IOException {
         productService.deleteProduct(productId);
         return ResponseEntity.ok("상품 삭제 완료.");
     }

@@ -23,6 +23,8 @@ function EditProduct() {
     description: "",
     category: "",
   });
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const hasRedirected = useRef(false);
@@ -63,15 +65,34 @@ function EditProduct() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+
+    if (selectedFile) {
+      setPreview(URL.createObjectURL(selectedFile));
+    } else {
+      setPreview(null);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("price", formData.price);
+      formDataToSend.append("stock", formData.stock);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("category", formData.category);
+      if (file) formDataToSend.append("image", file);
+
       const response = await axios.put(
         `http://localhost:8080/products/${productId}`,
-        formData,
+        formDataToSend,
         { withCredentials: true }
       );
       if (response.status === 200) {
@@ -155,6 +176,16 @@ function EditProduct() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="form-group">
+          <label>상품 이미지</label>
+          <input type="file" accept="image/*" onChange={handleFileChange} />
+          {preview && (
+            <div className="image-preview">
+              <img src={preview} alt="미리보기" width={100} />
+            </div>
+          )}
         </div>
 
         <div className="form-buttons">

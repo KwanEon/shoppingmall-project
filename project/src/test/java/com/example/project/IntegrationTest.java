@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.mock.web.MockMultipartFile;
 import jakarta.persistence.EntityManager;
 import com.example.project.model.User;
 import com.example.project.model.Product;
@@ -151,6 +152,7 @@ public class IntegrationTest {
 	@WithMockUser(username = "admin", roles = {"ADMIN"})
 	void 상품_상세정보_조회() throws Exception {
 		// given
+		MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", new byte[0]);
 		userService.saveUser(RegisterDTO.builder()
 				.username("testuser")
 				.name("홍길동")
@@ -173,7 +175,7 @@ public class IntegrationTest {
 				.price(10000)
 				.stock(50)
 				.category(Product.Category.ELECTRONICS)
-				.build());
+				.build(), image);
 
 		reviewService.addReview(1L, 1L, ReviewDTO.builder()
 				.rating(5)
@@ -210,6 +212,7 @@ public class IntegrationTest {
 	@WithMockUser(username = "admin", roles = {"ADMIN"})
 	void 상품_상세정보_조회_NOFETCH() throws Exception {
 		// given
+		MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", new byte[0]);
 		userService.saveUser(RegisterDTO.builder()
 				.username("testuser")
 				.name("홍길동")
@@ -232,7 +235,7 @@ public class IntegrationTest {
 				.price(10000)
 				.stock(50)
 				.category(Product.Category.ELECTRONICS)
-				.build());
+				.build(), image);
 
 		reviewService.addReview(1L, 1L, ReviewDTO.builder()
 				.rating(5)

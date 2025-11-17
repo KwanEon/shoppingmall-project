@@ -114,7 +114,7 @@ const MyPage = () => {
                               ? item.imageUrl
                               : `http://localhost:8080${item.imageUrl}`
                           }
-                          onError={(e) => { e.target.src = "http://localhost:8080/static/images/noimage.jpg"; }}
+                          onError={(e) => { e.target.src = "http://localhost:8080/images/noimage.jpg"; }}
                           alt={item.productName}
                         />
                         <div className="order-item-info">

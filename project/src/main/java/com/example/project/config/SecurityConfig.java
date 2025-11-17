@@ -25,7 +25,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
             .csrf(csrf -> csrf.disable()) // 테스트 중이므로 CSRF 비활성화
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/auth/login", "/register", "/products/**", "/cartitem/**", "/static/**", "/auth/verify").permitAll() // 인증 없이 접근 가능
+                .requestMatchers("/", "/auth/login", "/register", "/products/**", "/cartitem/**", "images/**", "/auth/verify").permitAll() // 인증 없이 접근 가능
                 .anyRequest().authenticated()   // 나머지 요청은 로그인한 사용자만 접근 가능
             )
             .formLogin(login -> login

@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/**")
-                .addResourceLocations("classpath:/static/");
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("file:images");
     }
 }
