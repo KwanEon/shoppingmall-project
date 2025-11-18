@@ -119,7 +119,7 @@ public class ProductService {
         if (image != null && !image.isEmpty()) {
             // 기존 이미지 삭제
             if (product.getImageUrl() != null) {
-                Path oldImage = Paths.get(product.getImageUrl().replace("/images/", "images/"));
+                Path oldImage = Paths.get(product.getImageUrl().substring(1));
                 Files.deleteIfExists(oldImage);
             }
 
@@ -142,9 +142,8 @@ public class ProductService {
 
         // 이미지 삭제
         if (product.getImageUrl() != null) {
-            // imageUrl이 "/images/uuid.jpg" 형식이라면 프로젝트 루트 기준으로 절대경로 계산
-            Path imagePath = Paths.get(System.getProperty("user.dir"), product.getImageUrl().substring(1));
-            Files.deleteIfExists(imagePath);  // 파일이 존재하면 삭제
+            Path imagePath = Paths.get(product.getImageUrl().substring(1));
+            Files.deleteIfExists(imagePath);
         }
 
         productRepository.delete(product);
