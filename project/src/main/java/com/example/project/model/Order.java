@@ -35,10 +35,10 @@ public class Order {
     private LocalDateTime orderDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private OrderStatus status;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 100)
     private String tid;
 
     public enum OrderStatus {
