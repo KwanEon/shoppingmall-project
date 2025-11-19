@@ -44,7 +44,7 @@ public class Product {
 
     public enum Category {
         ELECTRONICS,
-        CLOTHING,
+        FASHION,
         FOOD,
         FURNITURE,
         TOYS

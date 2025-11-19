@@ -8,9 +8,9 @@ import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 import "../styles/ProductList.css";
 
 const categoryOptions = [
-  { value: "", label: "카테고리 선택" },
+  { value: "", label: "전체" },
   { value: "ELECTRONICS", label: "전자제품" },
-  { value: "CLOTHING", label: "의류" },
+  { value: "FASHION", label: "패션" },
   { value: "FOOD", label: "식품" },
   { value: "FURNITURE", label: "가구" },
   { value: "TOYS", label: "장난감" },
