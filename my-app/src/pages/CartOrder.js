@@ -103,7 +103,10 @@ function CartOrder() {
                   ? item.imageUrl
                   : `http://localhost:8080${item.imageUrl}`
               }
-              onError={(e) => { e.target.src = "http://localhost:8080/images/noimage.jpg"; }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/noimage.jpg";
+              }}
               alt={item.name}
               className="order-thumb"
             />

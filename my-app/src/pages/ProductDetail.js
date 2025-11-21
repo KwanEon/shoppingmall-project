@@ -103,7 +103,10 @@ function ProductDetail() {
             <img
               className="product-image"
               src={product.imageUrl?.startsWith("http") ? product.imageUrl : `http://localhost:8080${product.imageUrl}`}
-              onError={(e) => (e.target.src = "http://localhost:8080/images/noimage.jpg")}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/noimage.jpg";
+              }}
               alt={product.name}
             />
           </div>

@@ -60,7 +60,8 @@ function Main() {
                   : `http://localhost:8080${product.imageUrl}`
               }
               onError={(e) => {
-                e.target.src = "http://localhost:8080/images/noimage.jpg";
+                e.target.onerror = null;
+                e.target.src = "/noimage.jpg";
               }}
               alt={product.name}
             />

@@ -78,7 +78,10 @@ function Cart() {
               <div key={item.id} className="cart-item">
                 <img
                   src={item.imageUrl?.startsWith("http") ? item.imageUrl : `http://localhost:8080${item.imageUrl}`}
-                  onError={(e) => { e.target.src = "http://localhost:8080/images/noimage.jpg"; }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/noimage.jpg";
+                  }}
                   alt={item.productName}
                   onClick={() => navigate(`/products/${item.productId}`)}
                 />

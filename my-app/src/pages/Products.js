@@ -136,7 +136,10 @@ function Products() {
                     ? product.imageUrl
                     : `http://localhost:8080${product.imageUrl}`
                 }
-                onError={(e) => { e.target.src = "http://localhost:8080/images/noimage.jpg"; }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/noimage.jpg";
+                }}
                 alt={product.name}
               />
               <h4 onClick={() => navigate(`/products/${product.id}`)}>{product.name}</h4>
