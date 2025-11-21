@@ -2,8 +2,6 @@
 Spring Boot + React 기반으로 개발한 쇼핑몰 사이트입니다.  
 회원가입, 로그인, 상품 목록 조회, 장바구니, 리뷰, 카카오페이 결제 기능을 제공합니다.
 
-> AI 도구(ChatGPT, GitHub Copilot, Gemini)를 참고해 개발했으며, **설계/인증/DB/비즈니스 로직/결제 연동 등 핵심 구현은 직접 수행했습니다.**
-
 ---
 
 ## 🛠 기술 스택
@@ -50,7 +48,7 @@ Spring Boot + React 기반으로 개발한 쇼핑몰 사이트입니다.
 ---
 
 ## 🏗 DB 구조
-<img width="700" alt="ER Diagram" src="https://github.com/user-attachments/assets/b97ae574-d464-45a8-af26-c6adc07ac6f3" />
+<img width="1426" height="1095" alt="ER Diagram" src="https://github.com/user-attachments/assets/b97ae574-d464-45a8-af26-c6adc07ac6f3" />
 
 ---
 
