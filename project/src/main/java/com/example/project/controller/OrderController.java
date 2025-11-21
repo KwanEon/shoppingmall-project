@@ -68,7 +68,11 @@ public class OrderController {
             return ResponseEntity.badRequest().body("잘못된 요청입니다. 'increase' 또는 'decrease'만 허용됩니다.");
         }
         int change = operation.equals("increase") ? 1 : -1; // 수량 변경 값 설정
-        cartItemService.updateCartItem(cartId, change);
+        try {
+            cartItemService.updateCartItem(cartId, change);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
         return ResponseEntity.ok("장바구니 상품 수량이 업데이트되었습니다.");
     }
 

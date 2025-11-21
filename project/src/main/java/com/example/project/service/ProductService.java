@@ -3,6 +3,7 @@ package com.example.project.service;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,15 +18,16 @@ import com.example.project.dto.ReviewResponseDTO;
 import com.example.project.model.Product;
 import com.example.project.model.Product.Category;
 import com.example.project.model.Review;
+import com.example.project.repository.CartItemRepository;
 import com.example.project.repository.ProductRepository;
 import com.example.project.repository.ReviewRepository;
 
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +37,10 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
+    private final CartItemRepository cartItemRepository;
+    
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
     @Transactional(readOnly = true)
     public Product getProductById(Long id) {    // 상품 조회
@@ -76,7 +82,7 @@ public class ProductService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public void addProduct(ProductDTO productDTO, MultipartFile image) throws IOException {   // 상품 추가
-        Path imagesDir = Paths.get(System.getProperty("user.dir"), "images");
+        Path imagesDir = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(imagesDir);
 
         String imageUrl = null;
@@ -113,7 +119,7 @@ public class ProductService {
         product.setStock(productDTO.getStock());
         product.setCategory(productDTO.getCategory());
 
-        Path imagesDir = Paths.get(System.getProperty("user.dir"), "images");
+        Path imagesDir = Paths.get(uploadDir).toAbsolutePath().normalize();
         Files.createDirectories(imagesDir);
 
         if (image != null && !image.isEmpty()) {
@@ -139,6 +145,7 @@ public class ProductService {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteProduct(Long id) throws IOException {    // 상품 삭제
         Product product = getProductById(id);
+        cartItemRepository.deleteByProductId(id);
 
         // 이미지 삭제
         if (product.getImageUrl() != null) {
